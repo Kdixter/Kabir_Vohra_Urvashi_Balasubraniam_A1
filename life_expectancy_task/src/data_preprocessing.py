@@ -12,7 +12,7 @@ def load_life_expectancy_data():
     try:
         # Construct a relative path to the data file
         # Goes up one level from 'src' and then into 'data'
-        file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'train_data.csv')
+        file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'Life Expectancy.csv')
         
         # Load the CSV file into a pandas DataFrame
         data = pd.read_csv(file_path)
