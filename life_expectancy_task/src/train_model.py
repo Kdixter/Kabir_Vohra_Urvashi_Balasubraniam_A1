@@ -4,8 +4,8 @@ import pandas as pd
 import os
 import pickle
 
-# Import the preprocessing function from your other script
-from data_preprocessing import preprocess_life_expectancy_data
+# This script no longer needs to import the preprocessing function,
+# as it will use the pre-split training data.
 
 class LinearRegressionScratch:
     """
@@ -77,13 +77,14 @@ class LinearRegressionScratch:
 if __name__ == "__main__":
     print("--- Starting Model Training ---")
     
-    # 1. Load and preprocess the data
-    # We will use the transformed data file for training
+    # 1. Load the TRAINING data
+    # This path is now updated to use the dedicated training set.
     try:
-        transformed_data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'train_data_transformed.csv')
-        df = pd.read_csv(transformed_data_path)
+        training_data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'training_set.csv')
+        df = pd.read_csv(training_data_path)
+        print(f"Successfully loaded training data from: {training_data_path}")
     except FileNotFoundError:
-        print("Transformed data file not found. Please run data_preprocessing.py first.")
+        print("Training data file not found. Please run split_data.py first.")
         exit()
 
     # 2. Prepare the data for the model
@@ -96,11 +97,11 @@ if __name__ == "__main__":
 
     # Feature Scaling (Important for Gradient Descent)
     # We scale features to be between 0 and 1 to help the algorithm converge faster.
-    X = (X - X.min()) / (X.max() - X.min())
+    X_scaled = (X - X.min()) / (X.max() - X.min())
 
     # 3. Train the Linear Regression model
     model = LinearRegressionScratch(learning_rate=0.01, n_iterations=2000)
-    model.fit(X, y)
+    model.fit(X_scaled, y)
 
     # 4. Display the learned weights
     print("\n--- Model Training Complete ---")
@@ -125,3 +126,4 @@ if __name__ == "__main__":
         print(f"\nModel successfully saved to: {model_path}")
     except Exception as e:
         print(f"\nError saving the model: {e}")
+
