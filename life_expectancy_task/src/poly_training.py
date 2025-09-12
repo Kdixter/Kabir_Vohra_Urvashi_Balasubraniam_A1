@@ -1,3 +1,4 @@
+# train a polynomial regression model (degree 2) using the engineered features: 
 import numpy as np
 import pandas as pd
 import os
