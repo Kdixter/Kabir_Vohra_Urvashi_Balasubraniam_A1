@@ -1,0 +1,58 @@
+================================================================================
+LAPTOP PRICE PREDICTION - LASSO REGRESSION MODEL TEST RESULTS
+================================================================================
+
+MODEL INFORMATION:
+----------------------------------------
+Model Type: Lasso Regression (Linear Regression with L1 Regularization)
+Optimization: Gradient Descent
+Regularization: L1 (Lasso)
+Total Features: 79
+Selected Features: 78
+Feature Reduction: 1.3%
+Test Samples: 118
+
+EVALUATION METRICS:
+----------------------------------------
+Mean Squared Error (MSE): 458872795.14
+Root Mean Squared Error (RMSE): 21421.32
+Mean Absolute Error (MAE): 14758.94
+R-squared: 0.7650
+Mean Absolute Percentage Error (MAPE): 27.89%
+
+ADDITIONAL STATISTICS:
+----------------------------------------
+Test samples: 118
+Prediction range: [10710.97, 322276.45]
+True value range: [10224.43, 292986.72]
+Residual mean: -625.47
+Residual std: 21412.18
+
+SAMPLE PREDICTIONS:
+----------------------------------------
+Index    True Price      Predicted Price    Error          
+--------------------------------------------------------
+0        76030.56        63993.43           12037.13       
+1        119916.23       89440.89           30475.34       
+2        90522.72        87378.14           3144.58        
+3        93186.72        101437.44          8250.72        
+4        60031.11        57217.13           2813.98        
+5        30316.32        51141.91           20825.59       
+6        109218.67       90587.68           18630.99       
+7        111834.72       122398.05          10563.33       
+8        42251.04        49597.45           7346.41        
+9        20619.36        29471.67           8852.31        
+10       18594.72        25339.58           6744.86        
+11       28984.32        31589.36           2605.04        
+12       130001.60       109256.04          20745.57       
+13       32820.48        38115.00           5294.52        
+14       133146.72       113776.23          19370.49       
+15       99900.00        50737.98           49162.02       
+16       33513.12        44034.76           10521.64       
+17       24029.28        49732.82           25703.54       
+18       23656.32        44801.13           21144.81       
+19       36177.12        62458.61           26281.49       
+
+================================================================================
+RESULTS SAVED: C:\Users\Kabir\Desktop\IML_Assignments\Kabir_Vohra_Urvashi_Balasubraniam_A1\laptop_price_task\results\lasso_model_test_results.txt
+================================================================================
