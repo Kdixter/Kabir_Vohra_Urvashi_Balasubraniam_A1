@@ -1,23 +1,26 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import sklearn.preprocessing as MinMaxScaler
 
-# dependent variable (what we are predicting)
-# = avg_purchase_value per customer
+df = pd.read_csv('/Users/urvashibalasubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/src/Retail.csv')
 
-# y = m1 x1 + m2 x2 + ... + m77 x77
+""" 
+Refer data_exploration.ipynb for checks 
+ for missing values, var types, statistical distributions etc """
 
-data = pd.read_csv('/Users/urvashibalasubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/src/Retail.csv')
-print(data)
+# Correlation analysis
 
-# mean squared error
-def mse(m,b, points):
-    total_error = 0 # for summation
-    for i in range(len(points)):
-        x = points.iloc()
+"""
+Need to perform one-hot encoding on the following categorical variables. Of the 77 columns:
+(1) Identifying those that have Strings as fields
+(2) Coming up with a standard rule to perform one-hot encoding without my manual intervention required.
 
-# root mean squared error
+For pandas, we usually use
+uniqueCount = data['category_name'].nunique()
 
-# r squared (r^2) score
+(3) Coming up with a standard rule to perform one-hot encoding without my manual intervention required.
 
-# round values to 2 decimal places
+print(f"The number of distinct product IDs is: {unique_products}")
+
+"""
