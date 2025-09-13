@@ -12,7 +12,7 @@ if __name__ == "__main__":
     
     # 1. Load the final, SCALED training data
     try:
-        scaled_data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'poly_training_set_scaled.csv')
+        scaled_data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'poly_train.csv')
         df = pd.read_csv(scaled_data_path)
         print(f"Successfully loaded scaled training data from: {scaled_data_path}")
     except FileNotFoundError:
