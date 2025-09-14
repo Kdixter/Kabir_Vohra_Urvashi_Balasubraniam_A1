@@ -1,50 +1,54 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import sklearn.preprocessing as MinMaxScaler
-from sklearn.compose import ColumnTransformer
 
+# load dataset
 df = pd.read_csv('/Users/urvashibalasubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/src/Retail.csv')
 
-""" 
-Refer data_exploration.ipynb for checks 
- for missing values, var types, statistical distributions etc """
+# Prior to encoding -- these are the actual numerical features (used later)
+ogNumericalCols = df.select_dtypes(include=["number"]).columns.tolist()
 
-# Separating numerical and categorical (non-numerical/string) data value columns
-numericalCols = df.select_dtypes(include=["number"]).columns.tolist()
+################
+
+# DATE FIELD HANDLING
+# converting numerical to datetime datatype (for interval calculation)
+df['promotion_start_date'] = pd.to_datetime(df['promotion_start_date'])
+df['promotion_end_date'] = pd.to_datetime(df['promotion_end_date'])
+
+# creating new column in df = interval b/w promotion start and end date (unit = days)
+df['promotion_time_period'] = (df['promotion_end_date'] - df['promotion_start_date']).dt.days
+
+# dropping (deleting) date columns in new dataframe
+df_new = df.drop(['transaction_date','last_purchase_date','product_manufacture_date','product_expiry_date','promotion_start_date','promotion_end_date'], axis=1)
+
+# overwrite df with df_new
+df = df_new
+
+################
+
+# ONE HOT ENCODING
+
+# getting category cols, from overwritten (just modified) df
 categoryCols = df.select_dtypes(exclude=["number"]).columns.tolist()
 
-# One hot encoding using scikitlearn
-ct = ColumnTransformer( transformers=[
-        ("cat", MinMaxScaler.OneHotEncoder(handle_unknown='ignore'), categoryCols),
-        ("num", "passthrough", numericalCols) # passthrough = continue 
-    ])
-"""
-Transformation: 
-cat (transform name) -> apply OneHotEncoder to categoryCols
-num (transform name)-> just pass through without applying anything
-Called later using ct.fit_transform(df) which outputs the numpy array (without headers)
-"""
+df_encoded = pd.get_dummies(df, columns=categoryCols)
 
-# Call the above transform (outputs numpy array)
-tempEncoded = ct.fit_transform(df)
+df = df_encoded # overwriting as it is correctly doing the operation
 
-# Add back the headers and numerical data
-cat_features = ct.named_transformers_["cat"].get_feature_names_out(categoryCols)
-all_features = list(cat_features) + numericalCols
+onehotcols = df.select_dtypes(include=['bool']).columns # all one hot encoded cols (have boolean values)
 
-# Making it a dataframe again
-df_encoded = pd.DataFrame(tempEncoded.toarray(), columns=all_features)
+# typecasting all bools to integers (False -> 0, True -> 1)
+df[onehotcols] = df[onehotcols].astype(int) 
 
-print(df_encoded.head())
+################
 
-# Correlation analysis between target and all other variables
-
-# Normalisation (MinMax Scaling) -- try and do this without scikitlearn
-
-# Standardisation
-"""
-Transforms features to have mean = 0 and standard deviation = 1, 
-useful for normally distributed features."""
-
-# Detect and remove outliers
+# NORMALISATION
+# loop through each numerical column & apply Min-Max scaling
+for col in numericalCols:
+    min_val = df[col].min()
+    max_val = df[col].max()
+    # avoid division by zero! -- happens when all values in the column are the same
+    if max_val - min_val != 0:
+        df[col] = (df[col] - min_val) / (max_val - min_val)
+    else:
+        # if all values are the same, the normalized value is 0
+        df[col] = 0
