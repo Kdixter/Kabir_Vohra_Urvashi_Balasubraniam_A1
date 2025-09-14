@@ -4,22 +4,14 @@ import pickle
 from typing import Tuple
 import sys
 
-# Import the LinearRegression class with L1 regularization support
+# Import the LinearRegression class with L1 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from train_model import LinearRegression
 
 
 def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load and prepare the training data.
     
-    Args:
-        data_path: Path to the CSV file
-        
-    Returns:
-        Tuple of (features, target)
-    """
-    print(f"Loading data from: {data_path}")
+    print(f"Loading data from: {data_path}") # for debuggind
     
     # Load data using numpy
     data = np.genfromtxt(data_path, delimiter=',', skip_header=1)
@@ -37,13 +29,6 @@ def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def save_model(model: LinearRegression, model_path: str) -> None:
-    """
-    Save the trained model using pickle.
-    
-    Args:
-        model: Trained LinearRegression model with L1 regularization
-        model_path: Path where to save the model
-    """
     print(f"Saving model to: {model_path}")
     
     # Create models directory if it doesn't exist
@@ -57,17 +42,12 @@ def save_model(model: LinearRegression, model_path: str) -> None:
 
 
 def analyze_feature_importance(model: LinearRegression, feature_names: list = None) -> None:
-    """
-    Analyze and display feature importance from Lasso model.
-    
-    Args:
-        model: Trained Lasso model
-        feature_names: List of feature names (optional)
-    """
+    # -- check if weights are in place
     if model.weights is None:
         print("Model not trained yet!")
         return
-    
+    # --------------------------------
+
     # Get absolute weights (feature importance)
     weights_abs = np.abs(model.weights)
     
@@ -136,7 +116,7 @@ def main():
         rmse = np.sqrt(mse)
         mae = np.mean(np.abs(y_clean - final_predictions))
         
-        # Calculate R-squared
+        # Calculate R^2
         ss_res = np.sum((y_clean - final_predictions) ** 2)
         ss_tot = np.sum((y_clean - np.mean(y_clean)) ** 2)
         r_squared = 1 - (ss_res / ss_tot)

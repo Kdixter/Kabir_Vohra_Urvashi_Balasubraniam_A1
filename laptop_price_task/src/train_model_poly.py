@@ -6,22 +6,17 @@ from itertools import combinations_with_replacement
 
 
 class PolynomialRegression:
-    """
-    Polynomial Regression implementation from scratch using gradient descent.
-    No ML libraries used - only numpy for numerical operations.
-    """
-    
     def __init__(self, degree: int = 2, learning_rate: float = 0.001, max_iterations: int = 1000, 
                  tolerance: float = 1e-6, regularization: float = 0.0):
         """
         Initialize the Polynomial Regression model.
         
         Args:
-            degree: Degree of polynomial features
+            degree: Degree of polynomial features (2 in my case)
             learning_rate: Learning rate for gradient descent
-            max_iterations: Maximum number of iterations
+            max_iterations: Maximum number of iterations (usualluy like 2000)
             tolerance: Convergence tolerance
-            regularization: L2 regularization parameter
+            regularization: L2 regularization 
         """
         self.degree = degree
         self.learning_rate = learning_rate
@@ -38,16 +33,9 @@ class PolynomialRegression:
         self.poly_feature_indices: Optional[list] = None
         self.original_n_features: Optional[int] = None
         
+   # function to get the features in polynomial form     
     def _generate_polynomial_features(self, X: np.ndarray) -> np.ndarray:
-        """
-        Generate polynomial features up to the specified degree.
         
-        Args:
-            X: Input features (n_samples, n_features)
-            
-        Returns:
-            Polynomial features (n_samples, n_poly_features)
-        """
         n_samples, n_features = X.shape
         self.original_n_features = n_features
         
@@ -73,7 +61,7 @@ class PolynomialRegression:
         return poly_X
     
     def _normalize_features(self, X: np.ndarray, fit: bool = False) -> np.ndarray:
-        """Normalize features using z-score normalization."""
+        
         if fit:
             self.feature_means = np.mean(X, axis=0)
             self.feature_stds = np.std(X, axis=0)
@@ -83,7 +71,7 @@ class PolynomialRegression:
         return (X - self.feature_means) / self.feature_stds
     
     def _normalize_target(self, y: np.ndarray, fit: bool = False) -> np.ndarray:
-        """Normalize target using z-score normalization."""
+        
         if fit:
             self.target_mean = np.mean(y)
             self.target_std = np.std(y)
@@ -93,11 +81,11 @@ class PolynomialRegression:
         return (y - self.target_mean) / self.target_std
     
     def _denormalize_target(self, y_normalized: np.ndarray) -> np.ndarray:
-        """Convert normalized predictions back to original scale."""
+        
         return y_normalized * self.target_std + self.target_mean
     
     def _compute_loss(self, X: np.ndarray, y: np.ndarray) -> float:
-        """Compute mean squared error loss with L2 regularization."""
+        
         predictions = X @ self.weights + self.bias
         mse = np.mean((y - predictions) ** 2)
         
@@ -108,13 +96,9 @@ class PolynomialRegression:
         
         return mse
     
+    # pretty much same as in linear regression, the formula is slightly different
     def _compute_gradients(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, float]:
-        """
-        Compute gradients for gradient descent with L2 regularization.
         
-        Returns:
-            Tuple of (weight_gradients, bias_gradient)
-        """
         n_samples = X.shape[0]
         predictions = X @ self.weights + self.bias
         
@@ -133,17 +117,7 @@ class PolynomialRegression:
         return weight_gradients, bias_gradient
     
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'PolynomialRegression':
-        """
-        Train the polynomial regression model using gradient descent.
-        
-        Args:
-            X: Feature matrix (n_samples, n_features)
-            y: Target values (n_samples,)
-            
-        Returns:
-            self: Returns self for method chaining
-        """
-        # Check for NaN or infinite values in input data
+        # check for NaN or infinite values in input data
         if np.any(np.isnan(X)) or np.any(np.isinf(X)):
             print("Warning: NaN or infinite values found in features")
             X = np.nan_to_num(X, nan=0.0, posinf=1e6, neginf=-1e6)
@@ -160,7 +134,7 @@ class PolynomialRegression:
         X_normalized = self._normalize_features(X_poly, fit=True)
         y_normalized = self._normalize_target(y, fit=True)
         
-        # Check for NaN or infinite values after normalization
+        # Check for NaN or infinite values after normalization, very important
         if np.any(np.isnan(X_normalized)) or np.any(np.isinf(X_normalized)):
             print("Warning: NaN or infinite values found in normalized features")
             X_normalized = np.nan_to_num(X_normalized, nan=0.0, posinf=1.0, neginf=-1.0)
@@ -194,31 +168,29 @@ class PolynomialRegression:
             loss = self._compute_loss(X_normalized, y_normalized)
             self.training_losses.append(loss)
             
-            # Check for NaN in loss
+            # Check for NaN in loss (can skip)
             if np.isnan(loss) or np.isinf(loss):
                 print(f"Warning: NaN or infinite loss at iteration {iteration}")
                 print(f"Weights range: [{self.weights.min():.6f}, {self.weights.max():.6f}]")
                 print(f"Bias: {self.bias:.6f}")
                 break
             
-            # Compute gradients
             weight_grads, bias_grad = self._compute_gradients(X_normalized, y_normalized)
             
-            # Check for NaN in gradients
             if np.any(np.isnan(weight_grads)) or np.isnan(bias_grad) or np.any(np.isinf(weight_grads)) or np.isinf(bias_grad):
                 print(f"Warning: NaN or infinite gradients at iteration {iteration}")
                 break
             
-            # Update parameters
+            # updation of paramters in each iteration
             self.bias -= self.learning_rate * bias_grad
             self.weights -= self.learning_rate * weight_grads
             
-            # Check for convergence
+            #Convergence Check:
             if iteration > 0 and abs(self.training_losses[-2] - self.training_losses[-1]) < self.tolerance:
                 print(f"Converged after {iteration + 1} iterations")
                 break
             
-            # Print progress every 100 iterations
+            # Print progress:
             if iteration % 100 == 0:
                 print(f"Iteration {iteration}: Loss = {loss:.6f}")
         
@@ -226,15 +198,6 @@ class PolynomialRegression:
         return self
     
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """
-        Make predictions using the trained model.
-        
-        Args:
-            X: Feature matrix (n_samples, n_features) in original feature space
-            
-        Returns:
-            Predictions (n_samples,) in original scale
-        """
         if self.weights is None or self.bias is None:
             raise ValueError("Model must be trained before making predictions")
         
@@ -254,7 +217,6 @@ class PolynomialRegression:
         return self._denormalize_target(predictions_normalized)
     
     def get_coefficients(self) -> dict:
-        """Get model coefficients."""
         return {
             'weights': self.weights.copy() if self.weights is not None else None,
             'bias': self.bias
@@ -266,15 +228,6 @@ class PolynomialRegression:
 
 
 def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load and prepare the training data.
-    
-    Args:
-        data_path: Path to the CSV file
-        
-    Returns:
-        Tuple of (features, target)
-    """
     print(f"Loading data from: {data_path}")
     
     # Load data using numpy
@@ -293,13 +246,6 @@ def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def save_model(model: PolynomialRegression, model_path: str) -> None:
-    """
-    Save the trained model using pickle.
-    
-    Args:
-        model: Trained PolynomialRegression model
-        model_path: Path where to save the model
-    """
     print(f"Saving model to: {model_path}")
     
     # Create models directory if it doesn't exist
@@ -315,7 +261,7 @@ def save_model(model: PolynomialRegression, model_path: str) -> None:
 def main():
     """Main function to train the polynomial regression model."""
     
-    # Define paths
+    # Define paths (paths may change for different systems)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(current_dir)
     data_path = os.path.join(project_root, 'data', 'final_train_data_processed.csv')
@@ -331,18 +277,16 @@ def main():
         
         # Initialize and train the model
         model = PolynomialRegression(
-            degree=2,              # Quadratic polynomial features
+            degree=2,              # Quadratic polynomial features (tried for others, this works best)
             learning_rate=0.0001,  # Lower learning rate for polynomial features
-            max_iterations=3000,   # More iterations for convergence
+            max_iterations=3000,   # More iterations for convergence for polynomial
             tolerance=1e-6,
-            regularization=0.01    # L2 regularization to prevent overfitting
+            regularization=0.01    # L2 regularization
         )
         
         # Train the model
         model.fit(X_train, y_train)
         
-        # Get training metrics
-        # Clean the data first (same as in training)
         X_clean = np.nan_to_num(X_train, nan=0.0, posinf=1e6, neginf=-1e6)
         y_clean = np.nan_to_num(y_train, nan=np.mean(y_train), posinf=np.max(y_train), neginf=np.min(y_train))
         
@@ -351,7 +295,7 @@ def main():
         rmse = np.sqrt(mse)
         mae = np.mean(np.abs(y_clean - final_predictions))
         
-        # Calculate R-squared
+        # Calculate R^2
         ss_res = np.sum((y_clean - final_predictions) ** 2)
         ss_tot = np.sum((y_clean - np.mean(y_clean)) ** 2)
         r_squared = 1 - (ss_res / ss_tot)

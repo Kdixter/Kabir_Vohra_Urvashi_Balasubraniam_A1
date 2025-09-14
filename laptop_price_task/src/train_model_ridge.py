@@ -4,24 +4,15 @@ import pickle
 from typing import Tuple
 import sys
 
-# Import the LinearRegression class with L2 regularization support
+# Import the LinearRegression class with L2 regularization 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from train_model import LinearRegression
 
 
 def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load and prepare the training data.
-    
-    Args:
-        data_path: Path to the CSV file
-        
-    Returns:
-        Tuple of (features, target)
-    """
     print(f"Loading data from: {data_path}")
     
-    # Load data using numpy
+    # Load data using numpy (allowed)
     data = np.genfromtxt(data_path, delimiter=',', skip_header=1)
     
     # First column is the target (Price), rest are features
@@ -37,13 +28,6 @@ def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def save_model(model: LinearRegression, model_path: str) -> None:
-    """
-    Save the trained model using pickle.
-    
-    Args:
-        model: Trained LinearRegression model with L2 regularization
-        model_path: Path where to save the model
-    """
     print(f"Saving model to: {model_path}")
     
     # Create models directory if it doesn't exist
@@ -56,9 +40,7 @@ def save_model(model: LinearRegression, model_path: str) -> None:
     print("Model saved successfully!")
 
 
-def main():
-    """Main function to train the Ridge Regression model."""
-    
+def main(): # implements the Ridge regression model
     # Define paths
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(current_dir)
@@ -84,8 +66,6 @@ def main():
         # Train the model
         model.fit(X_train, y_train)
         
-        # Get training metrics
-        # Clean the data first (same as in training)
         X_clean = np.nan_to_num(X_train, nan=0.0, posinf=1e6, neginf=-1e6)
         y_clean = np.nan_to_num(y_train, nan=np.mean(y_train), posinf=np.max(y_train), neginf=np.min(y_train))
         
@@ -94,7 +74,7 @@ def main():
         rmse = np.sqrt(mse)
         mae = np.mean(np.abs(y_clean - final_predictions))
         
-        # Calculate R-squared
+        # calculate R^2
         ss_res = np.sum((y_clean - final_predictions) ** 2)
         ss_tot = np.sum((y_clean - np.mean(y_clean)) ** 2)
         r_squared = 1 - (ss_res / ss_tot)
