@@ -524,35 +524,35 @@ def main():
         # Step 1: Clean Life expectancy
         df = clean_life_expectancy(df)
         
-        # Step 2: One-hot encode Country
-        df = encode_country_feature(df)
-        
-        # Step 3: Encode Status feature
+        # Step 2: Encode Status feature (before dropping Country)
         df = encode_status_feature(df)
         
-        # Step 4: Handle missing values for Adult Mortality
+        # Step 3: Handle missing values for Adult Mortality (needs Country column)
         df = handle_adult_mortality(df)
         
-        # Step 5: Handle missing values for Alcohol
+        # Step 4: Handle missing values for GDP (needs Country column)
+        df = handle_gdp(df)
+        
+        # Step 5: One-hot encode Country (after all country-specific operations)
+        df = encode_country_feature(df)
+        
+        # Step 6: Handle missing values for Alcohol
         df = handle_alcohol(df)
         
-        # Step 6: Drop Hepatitis B and Measles features
+        # Step 7: Drop Hepatitis B and Measles features
         df = drop_features(df)
         
-        # Step 7: Handle BMI (drop rows with missing BMI)
+        # Step 8: Handle BMI (drop rows with missing BMI)
         df = handle_bmi(df)
         
-        # Step 8: Handle missing values for Polio
+        # Step 9: Handle missing values for Polio
         df = handle_polio(df)
         
-        # Step 9: Handle missing values for Total expenditure
+        # Step 10: Handle missing values for Total expenditure
         df = handle_total_expenditure(df)
         
-        # Step 10: Handle missing values for Diphtheria
+        # Step 11: Handle missing values for Diphtheria
         df = handle_diphtheria(df)
-        
-        # Step 11: Handle missing values for GDP
-        df = handle_gdp(df)
         
         # Step 12: Drop Population feature (already done in drop_features)
         
