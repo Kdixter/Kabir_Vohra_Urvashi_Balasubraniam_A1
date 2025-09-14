@@ -1,0 +1,56 @@
+================================================================================
+LAPTOP PRICE PREDICTION - POLYNOMIAL REGRESSION MODEL TEST RESULTS
+================================================================================
+
+MODEL INFORMATION:
+----------------------------------------
+Model Type: Polynomial Regression (from scratch)
+Optimization: Gradient Descent
+Polynomial Degree: 2
+Features: 79 (original) -> 3240 (polynomial)
+Test Samples: 118
+
+EVALUATION METRICS:
+----------------------------------------
+Mean Squared Error (MSE): 663234351.46
+Root Mean Squared Error (RMSE): 25753.34
+Mean Absolute Error (MAE): 16504.37
+R-squared: 0.6604
+Mean Absolute Percentage Error (MAPE): 34.00%
+
+ADDITIONAL STATISTICS:
+----------------------------------------
+Test samples: 118
+Prediction range: [20121.36, 391516.72]
+True value range: [10224.43, 292986.72]
+Residual mean: -1913.98
+Residual std: 25682.12
+
+SAMPLE PREDICTIONS:
+----------------------------------------
+Index    True Price      Predicted Price    Error          
+--------------------------------------------------------
+0        76030.56        61021.19           15009.37       
+1        119916.23       94407.56           25508.67       
+2        90522.72        78767.40           11755.32       
+3        93186.72        103902.80          10716.08       
+4        60031.11        52674.99           7356.11        
+5        30316.32        50613.46           20297.14       
+6        109218.67       91676.17           17542.51       
+7        111834.72       108750.58          3084.14        
+8        42251.04        47649.17           5398.13        
+9        20619.36        31866.06           11246.70       
+10       18594.72        30775.41           12180.69       
+11       28984.32        34055.67           5071.35        
+12       130001.60       105583.70          24417.90       
+13       32820.48        39879.03           7058.55        
+14       133146.72       112009.05          21137.67       
+15       99900.00        52111.36           47788.64       
+16       33513.12        41069.41           7556.29        
+17       24029.28        53365.24           29335.96       
+18       23656.32        47695.98           24039.66       
+19       36177.12        62032.20           25855.08       
+
+================================================================================
+RESULTS SAVED: C:\Users\Kabir\Desktop\IML_Assignments\Kabir_Vohra_Urvashi_Balasubraniam_A1\laptop_price_task\results\polynomial_model_test_results.txt
+================================================================================

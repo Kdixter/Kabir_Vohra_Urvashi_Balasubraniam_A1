@@ -263,12 +263,24 @@ def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
     print(f"Loading data from: {data_path}")
     
-    # Load data using numpy
-    data = np.genfromtxt(data_path, delimiter=',', skip_header=1)
+    # Load data using pandas to handle mixed data types properly
+    import pandas as pd
     
-    # First column is the target (Price), rest are features
-    target = data[:, 0]
-    features = data[:, 1:]
+    # Load the CSV file
+    df = pd.read_csv(data_path)
+    
+    # Convert boolean columns (country one-hot encoded features) to integers
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            # Convert 'True'/'False' strings to 1/0
+            df[col] = df[col].map({'True': 1, 'False': 0})
+    
+    # Convert to numpy arrays
+    data = df.values.astype(float)
+    
+    # Last column is the target (Life expectancy), rest are features
+    target = data[:, -1]
+    features = data[:, :-1]
     
     print(f"Data shape: {data.shape}")
     print(f"Features shape: {features.shape}")
@@ -299,16 +311,16 @@ def save_model(model: LinearRegression, model_path: str) -> None:
 
 
 def main():
-    """Main function to train the linear regression model."""
+    """Main function to train the linear regression model for life expectancy."""
     
     # Define paths
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(current_dir)
-    data_path = os.path.join(project_root, 'data', 'final_train_data_processed.csv')
-    model_path = os.path.join(project_root, 'models', 'linear_regression_baseline.pkl')
+    data_path = os.path.join(project_root, 'data', 'life_expectancy_train_processed.csv')
+    model_path = os.path.join(project_root, 'models', 'life_expectancy_linear_model.pkl')
     
     print("=" * 60)
-    print("LAPTOP PRICE PREDICTION - LINEAR REGRESSION BASELINE")
+    print("LIFE EXPECTANCY PREDICTION - LINEAR REGRESSION TRAINING")
     print("=" * 60)
     
     try:
@@ -319,7 +331,8 @@ def main():
         model = LinearRegression(
             learning_rate=0.01,   # Standard learning rate for normalized data
             max_iterations=2000,  # More iterations for convergence
-            tolerance=1e-6
+            tolerance=1e-6,
+            regularization=0.0    # No regularization for baseline
         )
         
         # Train the model

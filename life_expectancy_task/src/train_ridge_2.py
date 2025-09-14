@@ -2,31 +2,30 @@ import os
 import numpy as np
 import pickle
 from typing import Tuple, Optional
+import pandas as pd
 
 
-class LinearRegression:
+class RidgeRegression:
     """
-    Linear Regression implementation from scratch using gradient descent.
+    Ridge Regression implementation from scratch using gradient descent with L2 regularization.
     No ML libraries used - only numpy for numerical operations.
     """
     
-    def __init__(self, learning_rate: float = 0.01, max_iterations: int = 1000, tolerance: float = 1e-6, 
-                 regularization: float = 0.0, regularization_type: str = 'l2'):
+    def __init__(self, learning_rate: float = 0.01, max_iterations: int = 2000, tolerance: float = 1e-6, 
+                 regularization: float = 0.01):
         """
-        Initialize the Linear Regression model.
+        Initialize the Ridge Regression model.
         
         Args:
             learning_rate: Learning rate for gradient descent
             max_iterations: Maximum number of iterations
             tolerance: Convergence tolerance
-            regularization: Regularization parameter (0.0 = no regularization)
-            regularization_type: Type of regularization ('l1', 'l2', or 'elastic_net')
+            regularization: L2 regularization parameter (alpha)
         """
         self.learning_rate = learning_rate
         self.max_iterations = max_iterations
         self.tolerance = tolerance
         self.regularization = regularization
-        self.regularization_type = regularization_type.lower()
         self.weights: Optional[np.ndarray] = None
         self.bias: Optional[float] = None
         self.training_losses: list = []
@@ -64,31 +63,20 @@ class LinearRegression:
         return y_normalized * self.target_std + self.target_mean
     
     def _compute_loss(self, X: np.ndarray, y: np.ndarray) -> float:
-        """Compute mean squared error loss with regularization."""
+        """Compute mean squared error loss with L2 regularization."""
         predictions = self.predict(X)
         mse = np.mean((y - predictions) ** 2)
         
-        # Add regularization penalty
+        # Add L2 regularization penalty
         if self.regularization > 0 and self.weights is not None:
-            if self.regularization_type == 'l1':
-                # L1 regularization (Lasso)
-                l1_penalty = self.regularization * np.sum(np.abs(self.weights))
-                mse += l1_penalty
-            elif self.regularization_type == 'l2':
-                # L2 regularization (Ridge)
-                l2_penalty = self.regularization * np.sum(self.weights ** 2)
-                mse += l2_penalty
-            elif self.regularization_type == 'elastic_net':
-                # Elastic Net (L1 + L2)
-                l1_penalty = self.regularization * np.sum(np.abs(self.weights))
-                l2_penalty = self.regularization * np.sum(self.weights ** 2)
-                mse += l1_penalty + l2_penalty
+            l2_penalty = self.regularization * np.sum(self.weights ** 2)
+            mse += l2_penalty
         
         return mse
     
     def _compute_gradients(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, float]:
         """
-        Compute gradients for gradient descent with regularization.
+        Compute gradients for gradient descent with L2 regularization.
         
         Returns:
             Tuple of (weight_gradients, bias_gradient)
@@ -104,31 +92,17 @@ class LinearRegression:
         # Compute gradients
         weight_gradients = (2 / n_samples) * X_features.T @ error
         
-        # Add regularization gradient
+        # Add L2 regularization gradient
         if self.regularization > 0:
-            if self.regularization_type == 'l1':
-                # L1 regularization gradient (subgradient)
-                # For L1, the gradient of |w| is sign(w), but we use a smooth approximation
-                # to avoid issues at w=0
-                epsilon = 1e-8
-                weight_gradients += self.regularization * np.sign(self.weights) * (np.abs(self.weights) > epsilon)
-            elif self.regularization_type == 'l2':
-                # L2 regularization gradient
-                weight_gradients += 2 * self.regularization * self.weights
-            elif self.regularization_type == 'elastic_net':
-                # Elastic Net regularization gradient
-                epsilon = 1e-8
-                l1_grad = self.regularization * np.sign(self.weights) * (np.abs(self.weights) > epsilon)
-                l2_grad = 2 * self.regularization * self.weights
-                weight_gradients += l1_grad + l2_grad
+            weight_gradients += 2 * self.regularization * self.weights
         
         bias_gradient = (2 / n_samples) * np.sum(error)
         
         return weight_gradients, bias_gradient
     
-    def fit(self, X: np.ndarray, y: np.ndarray) -> 'LinearRegression':
+    def fit(self, X: np.ndarray, y: np.ndarray) -> 'RidgeRegression':
         """
-        Train the linear regression model using gradient descent.
+        Train the Ridge regression model using gradient descent.
         
         Args:
             X: Feature matrix (n_samples, n_features)
@@ -167,10 +141,10 @@ class LinearRegression:
         self.weights = np.random.normal(0, 0.001, n_features - 1)  # Exclude bias from weights
         self.bias = 0.0
         
-        print(f"Training Linear Regression model...")
+        print(f"Training Ridge Regression model...")
         print(f"Training samples: {n_samples}, Features: {n_features - 1}")
         print(f"Learning rate: {self.learning_rate}, Max iterations: {self.max_iterations}")
-        print(f"Regularization ({self.regularization_type.upper()}): {self.regularization}")
+        print(f"L2 Regularization (alpha): {self.regularization}")
         
         # Gradient descent
         for iteration in range(self.max_iterations):
@@ -263,12 +237,21 @@ def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
     print(f"Loading data from: {data_path}")
     
-    # Load data using numpy
-    data = np.genfromtxt(data_path, delimiter=',', skip_header=1)
+    # Load data using pandas to handle mixed data types properly
+    df = pd.read_csv(data_path)
     
-    # First column is the target (Price), rest are features
-    target = data[:, 0]
-    features = data[:, 1:]
+    # Convert boolean columns (country one-hot encoded features) to integers
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            # Convert 'True'/'False' strings to 1/0
+            df[col] = df[col].map({'True': 1, 'False': 0})
+    
+    # Convert to numpy arrays
+    data = df.values.astype(float)
+    
+    # Last column is the target (Life expectancy), rest are features
+    target = data[:, -1]
+    features = data[:, :-1]
     
     print(f"Data shape: {data.shape}")
     print(f"Features shape: {features.shape}")
@@ -278,12 +261,12 @@ def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
     return features, target
 
 
-def save_model(model: LinearRegression, model_path: str) -> None:
+def save_model(model: RidgeRegression, model_path: str) -> None:
     """
     Save the trained model using pickle.
     
     Args:
-        model: Trained LinearRegression model
+        model: Trained RidgeRegression model
         model_path: Path where to save the model
     """
     print(f"Saving model to: {model_path}")
@@ -299,27 +282,28 @@ def save_model(model: LinearRegression, model_path: str) -> None:
 
 
 def main():
-    """Main function to train the linear regression model."""
+    """Main function to train the Ridge regression model for life expectancy."""
     
     # Define paths
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(current_dir)
-    data_path = os.path.join(project_root, 'data', 'final_train_data_processed.csv')
-    model_path = os.path.join(project_root, 'models', 'linear_regression_baseline.pkl')
+    data_path = os.path.join(project_root, 'data', 'life_expectancy_train_processed.csv')
+    model_path = os.path.join(project_root, 'models', 'life_expectancy_ridge_model.pkl')
     
     print("=" * 60)
-    print("LAPTOP PRICE PREDICTION - LINEAR REGRESSION BASELINE")
+    print("LIFE EXPECTANCY PREDICTION - RIDGE REGRESSION TRAINING")
     print("=" * 60)
     
     try:
         # Load training data
         X_train, y_train = load_data(data_path)
         
-        # Initialize and train the model
-        model = LinearRegression(
+        # Initialize and train the model with L2 regularization
+        model = RidgeRegression(
             learning_rate=0.01,   # Standard learning rate for normalized data
             max_iterations=2000,  # More iterations for convergence
-            tolerance=1e-6
+            tolerance=1e-6,
+            regularization=0.01   # L2 regularization parameter
         )
         
         # Train the model
@@ -352,7 +336,7 @@ def main():
         save_model(model, model_path)
         
         print("\n" + "=" * 60)
-        print("TRAINING COMPLETED SUCCESSFULLY!")
+        print("RIDGE REGRESSION TRAINING COMPLETED SUCCESSFULLY!")
         print("=" * 60)
         
     except Exception as e:
