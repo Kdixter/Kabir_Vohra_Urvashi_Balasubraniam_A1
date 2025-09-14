@@ -1,0 +1,149 @@
+age
+membership_years
+number_of_children
+transaction_id
+product_id
+quantity
+unit_price
+discount_applied
+transaction_hour
+week_of_year
+month_of_year
+avg_purchase_value
+avg_discount_used
+online_purchases
+in_store_purchases
+avg_items_per_transaction
+avg_transaction_value
+total_returned_items
+total_returned_value
+total_sales
+total_transactions
+total_items_purchased
+total_discounts_received
+avg_spent_per_category
+max_single_purchase_value
+min_single_purchase_value
+product_rating
+product_review_count
+product_stock
+product_return_rate
+product_weight
+product_shelf_life
+promotion_id
+customer_zip_code
+store_zip_code
+distance_to_store
+customer_support_calls
+website_visits
+days_since_last_purchase
+promotion_time_period
+gender_Female
+gender_Male
+gender_Other
+income_bracket_High
+income_bracket_Low
+income_bracket_Medium
+loyalty_program_No
+loyalty_program_Yes
+churned_No
+churned_Yes
+marital_status_Divorced
+marital_status_Married
+marital_status_Single
+education_level_Bachelor's
+education_level_High School
+education_level_Master's
+education_level_PhD
+occupation_Employed
+occupation_Retired
+occupation_Self-Employed
+occupation_Unemployed
+product_category_Clothing
+product_category_Electronics
+product_category_Furniture
+product_category_Groceries
+product_category_Toys
+payment_method_Cash
+payment_method_Credit Card
+payment_method_Debit Card
+payment_method_Mobile Payment
+store_location_Location A
+store_location_Location B
+store_location_Location C
+store_location_Location D
+day_of_week_Friday
+day_of_week_Monday
+day_of_week_Saturday
+day_of_week_Sunday
+day_of_week_Thursday
+day_of_week_Tuesday
+day_of_week_Wednesday
+purchase_frequency_Daily
+purchase_frequency_Monthly
+purchase_frequency_Weekly
+purchase_frequency_Yearly
+preferred_store_Location A
+preferred_store_Location B
+preferred_store_Location C
+preferred_store_Location D
+product_name_Product A
+product_name_Product B
+product_name_Product C
+product_name_Product D
+product_brand_Brand X
+product_brand_Brand Y
+product_brand_Brand Z
+product_size_Large
+product_size_Medium
+product_size_Small
+product_color_Black
+product_color_Blue
+product_color_Green
+product_color_Red
+product_color_White
+product_material_Glass
+product_material_Metal
+product_material_Plastic
+product_material_Wood
+promotion_type_20% Off
+promotion_type_Buy One Get One Free
+promotion_type_Flash Sale
+promotion_effectiveness_High
+promotion_effectiveness_Low
+promotion_effectiveness_Medium
+promotion_channel_In-store
+promotion_channel_Online
+promotion_channel_Social Media
+promotion_target_audience_New Customers
+promotion_target_audience_Returning Customers
+customer_city_City A
+customer_city_City B
+customer_city_City C
+customer_city_City D
+customer_state_State X
+customer_state_State Y
+customer_state_State Z
+store_city_City A
+store_city_City B
+store_city_City C
+store_city_City D
+store_state_State X
+store_state_State Y
+store_state_State Z
+holiday_season_No
+holiday_season_Yes
+season_Fall
+season_Spring
+season_Summer
+season_Winter
+weekend_No
+weekend_Yes
+email_subscriptions_No
+email_subscriptions_Yes
+app_usage_High
+app_usage_Low
+app_usage_Medium
+social_media_engagement_High
+social_media_engagement_Low
+social_media_engagement_Medium
