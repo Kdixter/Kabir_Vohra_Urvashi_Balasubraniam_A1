@@ -6,10 +6,7 @@ import pandas as pd
 
 
 class PolynomialRegression:
-    """
-    Polynomial Regression implementation from scratch with feature engineering.
-    Includes interaction terms and polynomial features for better performance.
-    """
+    
     
     def __init__(self, learning_rate: float = 0.01, max_iterations: int = 2000, tolerance: float = 1e-6, 
                  regularization: float = 0.01, degree: int = 2):

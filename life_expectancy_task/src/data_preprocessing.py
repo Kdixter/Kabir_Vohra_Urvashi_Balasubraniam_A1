@@ -182,18 +182,8 @@ def handle_diphtheria(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# Take previous year's GDP for that country, if not available take mean of entire column.
 def handle_gdp(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing GDP values.
-    Take previous year's GDP for that country, if not available take mean of entire column.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with GDP missing values filled
-    """
     print("Handling GDP missing values...")
     
     missing_count = df['GDP'].isna().sum()

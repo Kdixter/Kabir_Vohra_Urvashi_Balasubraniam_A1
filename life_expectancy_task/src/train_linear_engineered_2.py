@@ -6,23 +6,10 @@ import pandas as pd
 
 
 class LinearRegressionEngineered:
-    """
-    Linear Regression implementation with engineered features (interactions and polynomials).
-    Uses the same feature engineering as polynomial regression but with linear approach.
-    """
     
     def __init__(self, learning_rate: float = 0.01, max_iterations: int = 2000, tolerance: float = 1e-6, 
                  regularization: float = 0.0, degree: int = 2):
-        """
-        Initialize the Linear Regression with Engineered Features model.
         
-        Args:
-            learning_rate: Learning rate for gradient descent
-            max_iterations: Maximum number of iterations
-            tolerance: Convergence tolerance
-            regularization: L2 regularization parameter (0.0 = no regularization)
-            degree: Degree of polynomial features to create
-        """
         self.learning_rate = learning_rate
         self.max_iterations = max_iterations
         self.tolerance = tolerance
@@ -43,16 +30,7 @@ class LinearRegressionEngineered:
         return np.column_stack([np.ones(X.shape[0]), X])
     
     def _create_interaction_features(self, X: np.ndarray, feature_names: list) -> Tuple[np.ndarray, list]:
-        """
-        Create interaction features between important predictors.
         
-        Args:
-            X: Feature matrix
-            feature_names: List of feature names
-            
-        Returns:
-            Tuple of (enhanced_features, enhanced_feature_names)
-        """
         enhanced_features = [X]
         enhanced_names = list(feature_names)
         
@@ -81,16 +59,7 @@ class LinearRegressionEngineered:
         return np.column_stack(enhanced_features), enhanced_names
     
     def _create_polynomial_features(self, X: np.ndarray, feature_names: list) -> Tuple[np.ndarray, list]:
-        """
-        Create polynomial features for key predictors.
         
-        Args:
-            X: Feature matrix
-            feature_names: List of feature names
-            
-        Returns:
-            Tuple of (polynomial_features, polynomial_feature_names)
-        """
         polynomial_features = [X]
         polynomial_names = list(feature_names)
         
@@ -149,12 +118,7 @@ class LinearRegressionEngineered:
         return mse
     
     def _compute_gradients(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, float]:
-        """
-        Compute gradients for gradient descent with optional regularization.
         
-        Returns:
-            Tuple of (weight_gradients, bias_gradient)
-        """
         n_samples = X.shape[0]
         # Use X without bias term for gradient computation
         X_features = X[:, 1:]  # Remove the bias column
@@ -175,17 +139,7 @@ class LinearRegressionEngineered:
         return weight_gradients, bias_gradient
     
     def fit(self, X: np.ndarray, y: np.ndarray, feature_names: list = None) -> 'LinearRegressionEngineered':
-        """
-        Train the Linear Regression with Engineered Features model.
-        
-        Args:
-            X: Feature matrix (n_samples, n_features)
-            y: Target values (n_samples,)
-            feature_names: List of feature names
-            
-        Returns:
-            self: Returns self for method chaining
-        """
+       
         print(f"Starting linear regression training with engineered features (degree {self.degree})...")
         
         # Store original feature names
@@ -288,15 +242,7 @@ class LinearRegressionEngineered:
         return self
     
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """
-        Make predictions using the trained model.
         
-        Args:
-            X: Feature matrix (n_samples, n_features) - original features only
-            
-        Returns:
-            Predictions (n_samples,) in original scale
-        """
         if self.weights is None or self.bias is None:
             raise ValueError("Model must be trained before making predictions")
         
@@ -318,31 +264,21 @@ class LinearRegressionEngineered:
         return self._denormalize_target(predictions_normalized)
     
     def get_coefficients(self) -> dict:
-        """Get model coefficients."""
+       
         return {
             'weights': self.weights.copy() if self.weights is not None else None,
             'bias': self.bias
         }
     
     def get_training_losses(self) -> list:
-        """Get training loss history."""
         return self.training_losses.copy()
     
     def get_feature_names(self) -> list:
-        """Get engineered feature names."""
         return self.engineered_feature_names
 
 
 def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray, list]:
-    """
-    Load and prepare the training data.
     
-    Args:
-        data_path: Path to the CSV file
-        
-    Returns:
-        Tuple of (features, target, feature_names)
-    """
     print(f"Loading data from: {data_path}")
     
     # Load data using pandas to handle mixed data types properly
@@ -373,13 +309,6 @@ def load_data(data_path: str) -> Tuple[np.ndarray, np.ndarray, list]:
 
 
 def save_model(model: LinearRegressionEngineered, model_path: str) -> None:
-    """
-    Save the trained model using pickle.
-    
-    Args:
-        model: Trained LinearRegressionEngineered model
-        model_path: Path where to save the model
-    """
     print(f"Saving model to: {model_path}")
     
     # Create models directory if it doesn't exist
@@ -393,7 +322,6 @@ def save_model(model: LinearRegressionEngineered, model_path: str) -> None:
 
 
 def main():
-    """Main function to train the Linear Regression with Engineered Features model."""
     
     # Define paths
     current_dir = os.path.dirname(os.path.abspath(__file__))
