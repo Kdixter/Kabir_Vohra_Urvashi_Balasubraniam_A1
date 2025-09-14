@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 # load dataset
 df = pd.read_csv('/Users/urvashibalasubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/src/Retail.csv')
 
-# Prior to encoding -- these are the actual numerical features (used later)
-ogNumericalCols = df.select_dtypes(include=["number"]).columns.tolist()
-
 ################
 
 # DATE FIELD HANDLING
@@ -40,8 +37,11 @@ onehotcols = df.select_dtypes(include=['bool']).columns # all one hot encoded co
 df[onehotcols] = df[onehotcols].astype(int) 
 
 ################
+# NUMERICAL COLS (after one hot encoding, so including transformed categorical data)
+numericalCols = df.select_dtypes(include=["number"]).columns.tolist()
 
-# NORMALISATION
+# NORMALISATION (of training)
+# included initially, but using z score normalisation instead directly in train_model.py
 # loop through each numerical column & apply Min-Max scaling
 for col in numericalCols:
     min_val = df[col].min()
@@ -52,3 +52,44 @@ for col in numericalCols:
     else:
         # if all values are the same, the normalized value is 0
         df[col] = 0
+
+##############################
+
+# TRAINING DATA SPECIFICATION
+# using data_exploration.ipnyb's best correlated features to train the model
+"""
+NUMERICAL FEATURES:
+total_returned_items        0.002510
+in_store_purchases          0.002482
+quantity                    0.002272
+transaction_id              0.001726
+total_items_purchased       0.001661
+website_visits              0.001527
+customer_zip_code           0.001292
+days_since_last_purchase    0.000979
+product_review_count        0.000955
+
+they're all weakly correlated^ so exclusion of data isn't helpful
+
+CATEGORICAL FEATURES:
+gender_Male               0.002337
+customer_city_City C      0.002578
+customer_state_State Z   -0.002529
+store_state_State Z      -0.002281
+
+OVERALL FEATURES:
+1. avg_purchase_value       1.000000
+2. customer_city_City C     0.002578
+3. total_returned_items     0.002510
+4. in_store_purchases       0.002482
+5. gender_Male              0.002337
+6. quantity                 0.002272
+7. payment_method_Cash      0.002060
+8. transaction_id           0.001726
+9. total_items_purchased    0.001661
+10. loyalty_program_No       0.001652
+
+"""
+
+# initially exporting the file as usual
+df.to_csv('training_data_1.csv', index=False)
