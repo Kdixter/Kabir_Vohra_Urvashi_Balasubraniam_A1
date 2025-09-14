@@ -13,10 +13,7 @@ from train_model import LinearRegression
 
 
 def load_model(model_path: str): # takes in the model path and gives out the model
-    """
-    Load the trained model from pickle file.
     
-    """
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
     
@@ -25,24 +22,16 @@ def load_model(model_path: str): # takes in the model path and gives out the mod
     
     return model
 
-
+# Apply the same data preprocessing transformations as I have done on my end:
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply the same data preprocessing transformations as in data_preprocessing.py
     
-    Args:
-        df: Raw DataFrame
-        
-    Returns:
-        Preprocessed DataFrame
-    """
     print("Applying data preprocessing transformations...")
     
-    # --- 1. BASIC CLEANING ---
+    # cleaning:
     df['Ram'] = df['Ram'].str.replace('GB', '').astype(int)
     df['Weight'] = df['Weight'].str.replace('kg', '').astype(float)
     
-    # --- 2. ADVANCED FEATURE ENGINEERING ---
+    # feature enginerring:
     # ScreenResolution
     df['Touchscreen'] = df['ScreenResolution'].apply(lambda x: 1 if 'Touchscreen' in x else 0)
     df['IPS_Panel'] = df['ScreenResolution'].apply(lambda x: 1 if 'IPS' in x else 0)
@@ -50,7 +39,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     df['Y_res'] = df['ScreenResolution'].str.split('x').str[1].astype(int)
     df.drop(columns=['ScreenResolution'], inplace=True)
 
-    # Impute invalid zero values in resolution
+    # 0 valuen handling:
     for col in ['X_res', 'Y_res']:
         df[col] = df[col].replace(0, np.nan)
         df[col].fillna(df[col].median(), inplace=True)
@@ -79,15 +68,14 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df[df['Gpu_Brand'] != 'ARM']
     df.drop(columns=['Gpu'], inplace=True)
 
-    # --- 3. INTERACTION FEATURES ---
+    # creating interaction features
     df['Total_Pixels'] = df['X_res'] * df['Y_res']
     df['Ram_SSD_Interaction'] = df['Ram'] * df['SSD']
 
-    # --- 4. ONE-HOT ENCODING ---
+    # creating one hot encoding:
     df = pd.get_dummies(df, columns=['Company', 'TypeName', 'OpSys', 'Cpu_Brand', 'Gpu_Brand'], drop_first=True)
 
-    # --- 5. NORMALIZE NUMERICAL DATA ---
-    # Check if Price column exists (for training data) or not (for test data)
+    #  normalisation and checking if "Price" exists
     has_price = 'Price' in df.columns
     if has_price:
         price_col = df['Price']
@@ -111,23 +99,15 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_and_preprocess_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Load and preprocess the data using the same transformations as training.
     
-    Args:
-        data_path: Path to the CSV file
-        
-    Returns:
-        Tuple of (features, target) - target may be None for test data
-    """
     # Load raw data
     df = pd.read_csv(data_path)
     print(f"Loaded data with shape: {df.shape}")
     
-    # Apply preprocessing
+    # Pre-process it:
     df_processed = preprocess_data(df.copy())
     
-    # Check if target column exists
+    # Check if target column exists (if not then something ahs gone wrong):
     has_target = 'Price' in df_processed.columns
     
     if has_target:
@@ -147,16 +127,7 @@ def load_and_preprocess_data(data_path: str) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def clean_data(X: np.ndarray, y: np.ndarray = None) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Clean the data by handling NaN and infinite values.
     
-    Args:
-        X: Feature matrix
-        y: Target values (optional)
-        
-    Returns:
-        Tuple of (cleaned_features, cleaned_target)
-    """
     # Check for NaN or infinite values in input data
     if np.any(np.isnan(X)) or np.any(np.isinf(X)):
         X = np.nan_to_num(X, nan=0.0, posinf=1e6, neginf=-1e6)
@@ -169,23 +140,14 @@ def clean_data(X: np.ndarray, y: np.ndarray = None) -> Tuple[np.ndarray, np.ndar
 
 
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
-    """
-    Calculate regression evaluation metrics.
     
-    Args:
-        y_true: True target values
-        y_pred: Predicted target values
-        
-    Returns:
-        Dictionary containing evaluation metrics
-    """
-    # Mean Squared Error
+    # Mean Squared Error (mse)
     mse = np.mean((y_true - y_pred) ** 2)
     
-    # Root Mean Squared Error
+    # root(mse)
     rmse = np.sqrt(mse)
     
-    # R-squared
+    # R^2
     ss_res = np.sum((y_true - y_pred) ** 2)
     ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
     r_squared = 1 - (ss_res / ss_tot)
@@ -197,15 +159,9 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
     }
 
 
-def save_metrics(metrics: dict, output_path: str):
-    """
-    Save metrics to file in standardized format.
+def save_metrics(metrics: dict, output_path: str): # self explanatory
     
-    Args:
-        metrics: Dictionary containing evaluation metrics
-        output_path: Path where metrics will be saved
-    """
-    # Create output directory if it doesn't exist
+    # Create output directory if it doesn't exist (it exists)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     with open(output_path, 'w') as f:
@@ -215,14 +171,10 @@ def save_metrics(metrics: dict, output_path: str):
         f.write(f"R-squared (R²) Score: {metrics['R_squared']:.2f}\n")
 
 
+# saves all predictions in a seperate csv that will be created when
+# this file is run
 def save_predictions(predictions: np.ndarray, output_path: str):
-    """
-    Save predictions to CSV file in standardized format.
     
-    Args:
-        predictions: Array of predictions
-        output_path: Path where predictions will be saved
-    """
     # Create output directory if it doesn't exist
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
@@ -230,7 +182,7 @@ def save_predictions(predictions: np.ndarray, output_path: str):
     df = pd.DataFrame(predictions)
     df.to_csv(output_path, index=False, header=False)
 
-
+# main function that runs all above in the order that they are supposed to be
 def main():
     """Main function for model evaluation."""
     parser = argparse.ArgumentParser(description='Evaluate regression model')
@@ -246,7 +198,7 @@ def main():
     
     args = parser.parse_args()
     
-    try:
+    try: # for error handling
         # Load model
         print(f"Loading model from: {args.model_path}")
         model = load_model(args.model_path)

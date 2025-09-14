@@ -5,16 +5,8 @@ from typing import Tuple
 import random
 
 
-def load_data(data_path: str) -> pd.DataFrame:
-    """
-    Load the life expectancy dataset.
+def load_data(data_path: str) -> pd.DataFrame: # same as in previous task
     
-    Args:
-        data_path: Path to the CSV file
-        
-    Returns:
-        DataFrame with the loaded data
-    """
     print(f"Loading data from: {data_path}")
     df = pd.read_csv(data_path)
     print(f"Original data shape: {df.shape}")
@@ -22,17 +14,10 @@ def load_data(data_path: str) -> pd.DataFrame:
     return df
 
 
+# Drop entries where Life expectancy is missing.
 def clean_life_expectancy(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Drop entries where Life expectancy is missing.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with missing life expectancy entries removed
-    """
-    print("Cleaning Life expectancy column...")
+
+    print("Cleaning Life expectancy column...") # to know this function has been called
     initial_count = len(df)
     
     # Drop entries where Life expectancy is missing
@@ -45,17 +30,9 @@ def clean_life_expectancy(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# One-hot-encode "Country" feature (crucial)
 def encode_country_feature(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    One-hot encode the Country feature.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Country feature one-hot encoded
-    """
+
     print("One-hot encoding Country feature...")
     
     # Get unique countries
@@ -74,17 +51,9 @@ def encode_country_feature(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# Encode Status feature: 0.5 for Developed, -0.5 for Developing.
 def encode_status_feature(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Encode Status feature: 0.5 for Developed, -0.5 for Developing.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Status feature encoded
-    """
+   
     print("Encoding Status feature...")
     
     # Map Status values
@@ -97,19 +66,11 @@ def encode_status_feature(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# Handle missing Adult Mortality values.
+     #If missing, take median of that country's prior Adult Mortality values,
+    # otherwise take median of entire column.
 def handle_adult_mortality(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing Adult Mortality values.
-    If missing, take median of that country's prior Adult Mortality values,
-    otherwise take median of entire column.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Adult Mortality missing values filled
-    """
+   
     print("Handling Adult Mortality missing values...")
     
     missing_count = df['Adult Mortality'].isna().sum()
@@ -146,17 +107,9 @@ def handle_adult_mortality(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# Handle missing Alcohol values by taking median of entire column. 
 def handle_alcohol(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing Alcohol values by taking median of entire column.
     
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Alcohol missing values filled
-    """
     print("Handling Alcohol missing values...")
     
     missing_count = df['Alcohol'].isna().sum()
@@ -169,17 +122,9 @@ def handle_alcohol(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# Drop entire rows where BMI is missing as this is a crucial feature
 def handle_bmi(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Drop entire rows where BMI is missing.
     
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with BMI missing rows removed
-    """
     print("Handling BMI missing values...")
     
     initial_count = len(df)
@@ -192,17 +137,9 @@ def handle_bmi(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# Handle missing Polio values by taking median of entire column.
 def handle_polio(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing Polio values by taking median of entire column.
     
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Polio missing values filled
-    """
     print("Handling Polio missing values...")
     
     missing_count = df['Polio'].isna().sum()
@@ -215,17 +152,9 @@ def handle_polio(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+#Handle missing Total expenditure values by taking mean of entire column.
 def handle_total_expenditure(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing Total expenditure values by taking mean of entire column.
     
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Total expenditure missing values filled
-    """
     print("Handling Total expenditure missing values...")
     
     missing_count = df['Total expenditure'].isna().sum()
@@ -238,17 +167,9 @@ def handle_total_expenditure(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-
+# Handle missing Diphtheria values by taking mean of entire column.
 def handle_diphtheria(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing Diphtheria values by taking mean of entire column.
     
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Diphtheria missing values filled
-    """
     print("Handling Diphtheria missing values...")
     
     missing_count = df['Diphtheria '].isna().sum()
