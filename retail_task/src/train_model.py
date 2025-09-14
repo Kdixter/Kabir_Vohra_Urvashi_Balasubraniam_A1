@@ -260,7 +260,7 @@ def main():
     # the below 4 lines are taken from the docs of the os module in python
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(current_dir)
-    data_path = os.path.join(project_root, 'data', 'final_train_data_processed.csv')
+    data_path = os.path.join(project_root, 'data', 'retail_task/notebooks/training_subset.csv')
     model_path = os.path.join(project_root, 'models', 'linear_regression_baseline.pkl')
     
     print("=" * 60) # creating "lines" (formatting)

@@ -93,3 +93,8 @@ OVERALL FEATURES:
 
 # initially exporting the file as usual
 df.to_csv('training_data_1.csv', index=False)
+
+# selected columns only
+selected_columns = ['avg_purchase_value', 'customer_city_City C', 'total_returned_items','in_store_purchases','gender_Male','quantity','payment_method_Cash','transaction_id','total_items_purchased','website_visits','customer_zip_code','days_since_last_purchase','product_review_count','store_state_State Z','customer_state_State Z']
+df_subset = df[selected_columns]
+df_subset.to_csv('training_subset.csv', index=False)
