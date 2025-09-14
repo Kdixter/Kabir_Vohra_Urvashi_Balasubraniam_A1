@@ -12,15 +12,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from train_model import LinearRegression
 
 
-def load_model(model_path: str):
+def load_model(model_path: str): # takes in the model path and gives out the model
     """
     Load the trained model from pickle file.
     
-    Args:
-        model_path: Path to the saved model
-        
-    Returns:
-        Loaded LinearRegression model
     """
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
