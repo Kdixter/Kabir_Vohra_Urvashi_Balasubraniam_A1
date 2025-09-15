@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 from typing import Tuple, Optional
 
-# using code from other models, adapting it to this one!
+
 class LinearRegression: # the base class for all the models to be trained on
     def __init__(self, learning_rate: float = 0.01, max_iterations: int = 1000, tolerance: float = 1e-6, 
                  regularization: float = 0.0, regularization_type: str = 'l2'):
@@ -217,7 +217,7 @@ class LinearRegression: # the base class for all the models to be trained on
         }
     
     def get_training_losses(self) -> list: # simply returns the training losses
-        # Get training loss history.
+        """Get training loss history."""
         return self.training_losses.copy()
 
 
@@ -260,11 +260,11 @@ def main():
     # the below 4 lines are taken from the docs of the os module in python
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(current_dir)
-    data_path = os.path.join(project_root, 'data', 'training_subset.csv')    
-    model_path = os.path.join(project_root, 'models', 'linear_regression_baseline.pkl')
+    data_path = os.path.join(project_root, 'data', 'training_data_minus20.csv')
+    model_path = os.path.join(project_root, 'models', 'linear_regression_minus50.pkl')
     
-    print("=" * 60) # creating "lines" (formatting)
-    print("RETAIL TASK PREDICTION - LINEAR REGRESSION BASELINE")
+    print("=" * 60) # creating "lines"
+    print("LAPTOP PRICE PREDICTION - LINEAR REGRESSION BASELINE")
     print("=" * 60)
     
     try:
@@ -273,7 +273,7 @@ def main():
         
         # Initialize and train the model
         model = LinearRegression( 
-            # can play around with these hyperparamaters to see and check for better results, but I found the industry standards were so for a reason
+            # can play around with these hyperparamaters to see and check for better results, but I found the industry standards for a reason
             learning_rate=0.01,   # Standard learning rate for normalized data
             max_iterations=2000,  # More iterations for convergence
             tolerance=1e-6

@@ -1,0 +1,30 @@
+/usr/local/bin/python3 /Users/urvashibalasubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/src/train_model.py
+urvashibalasubramaniam@Urvashis-MacBook-Air Kabir_Vohra_Urvashi_Balasubraniam_A1 % /usr/local/bin/python3 /Users/urvashibalas
+ubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/src/train_model.py
+============================================================
+LAPTOP PRICE PREDICTION - LINEAR REGRESSION BASELINE
+============================================================
+Loading data from: /Users/urvashibalasubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/data/training_data_minus20.csv
+Data shape: (800000, 128)
+Features shape: (800000, 127)
+Target shape: (800000,)
+Target statistics - Min: 0.00, Max: 1.00, Mean: 0.50
+Training Linear Regression model...
+Training samples: 800000, Features: 127
+Learning rate: 0.01, Max iterations: 2000
+Regularization (L2): 0.0
+Iteration 0: Loss = 1.000144
+Converged after 56 iterations
+Training completed. Final loss: 0.999897
+TRAINING RESULTS
+Final MSE: 0.09
+Final RMSE: 0.30
+Final MAE: 0.26
+R-squared: 0.0001
+Saving model to: /Users/urvashibalasubramaniam/Documents/GitHub/Kabir_Vohra_Urvashi_Balasubraniam_A1/retail_task/models/linear_regression_baseline.pkl
+Model saved successfully!
+
+============================================================
+TRAINING COMPLETED SUCCESSFULLY!
+============================================================
+urvashibalasubramaniam@Urvashis-MacBook-Air Kabir_Vohra_Urvashi_Balasubraniam_A1 % 

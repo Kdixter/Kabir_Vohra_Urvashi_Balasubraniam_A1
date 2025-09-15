@@ -1,0 +1,150 @@
+Full Correlation List:
+
+customer_city_City C: 0.002578
+total_returned_items: 0.002510
+in_store_purchases: 0.002482
+gender_Male: 0.002337
+quantity: 0.002272
+payment_method_Cash: 0.002060
+transaction_id: 0.001726
+total_items_purchased: 0.001661
+loyalty_program_No: 0.001652
+promotion_effectiveness_Medium: 0.001641
+store_state_State Y: 0.001598
+preferred_store_Location D: 0.001553
+website_visits: 0.001527
+email_subscriptions_Yes: 0.001504
+product_material_Wood: 0.001481
+holiday_season_Yes: 0.001477
+day_of_week_Monday: 0.001359
+season_Fall: 0.001319
+customer_state_State X: 0.001294
+customer_zip_code: 0.001292
+purchase_frequency_Monthly: 0.001256
+customer_state_State Y: 0.001235
+store_city_City D: 0.001160
+payment_method_Mobile Payment: 0.001142
+day_of_week_Tuesday: 0.001094
+education_level_PhD: 0.001056
+days_since_last_purchase: 0.000979
+product_review_count: 0.000955
+weekend_No: 0.000935
+week_of_year: 0.000858
+day_of_week_Wednesday: 0.000831
+promotion_type_20% Off: 0.000822
+product_material_Glass: 0.000734
+product_brand_Brand Z: 0.000730
+income_bracket_Medium: 0.000712
+occupation_Unemployed: 0.000690
+store_state_State X: 0.000685
+promotion_channel_In-store: 0.000684
+product_category_Clothing: 0.000646
+store_location_Location C: 0.000641
+product_name_Product D: 0.000603
+app_usage_Low: 0.000579
+product_stock: 0.000556
+marital_status_Married: 0.000501
+education_level_Master's: 0.000493
+day_of_week_Friday: 0.000444
+social_media_engagement_High: 0.000420
+product_size_Large: 0.000403
+product_color_Blue: 0.000365
+store_city_City C: 0.000350
+preferred_store_Location A: 0.000294
+promotion_channel_Social Media: 0.000274
+marital_status_Single: 0.000267
+avg_transaction_value: 0.000262
+promotion_effectiveness_Low: 0.000253
+product_color_White: 0.000232
+age: 0.000226
+customer_city_City A: 0.000202
+social_media_engagement_Medium: 0.000201
+product_size_Medium: 0.000201
+product_shelf_life: 0.000179
+store_zip_code: 0.000169
+max_single_purchase_value: 0.000106
+day_of_week_Thursday: 0.000102
+store_location_Location A: 0.000086
+churned_Yes: 0.000080
+promotion_target_audience_New Customers: 0.000035
+promotion_type_Flash Sale: 0.000007
+product_id: -0.000019
+occupation_Retired: -0.000022
+product_name_Product C: -0.000031
+promotion_target_audience_Returning Customers: -0.000035
+product_color_Green: -0.000038
+avg_items_per_transaction: -0.000041
+product_category_Groceries: -0.000045
+purchase_frequency_Weekly: -0.000052
+product_category_Toys: -0.000053
+income_bracket_Low: -0.000078
+app_usage_High: -0.000078
+churned_No: -0.000080
+purchase_frequency_Daily: -0.000102
+season_Spring: -0.000111
+product_name_Product B: -0.000119
+product_category_Electronics: -0.000127
+product_color_Red: -0.000139
+season_Summer: -0.000173
+avg_spent_per_category: -0.000198
+education_level_Bachelor's: -0.000207
+occupation_Self-Employed: -0.000229
+product_brand_Brand X: -0.000270
+store_location_Location B: -0.000313
+total_returned_value: -0.000407
+store_location_Location D: -0.000415
+product_category_Furniture: -0.000421
+product_color_Black: -0.000421
+occupation_Employed: -0.000439
+product_name_Product A: -0.000453
+product_brand_Brand Y: -0.000460
+store_city_City B: -0.000483
+app_usage_Medium: -0.000501
+total_sales: -0.000511
+product_size_Small: -0.000604
+social_media_engagement_Low: -0.000620
+income_bracket_High: -0.000634
+preferred_store_Location B: -0.000666
+promotion_id: -0.000737
+marital_status_Divorced: -0.000768
+product_weight: -0.000790
+gender_Female: -0.000805
+promotion_type_Buy One Get One Free: -0.000830
+unit_price: -0.000848
+weekend_Yes: -0.000935
+promotion_channel_Online: -0.000958
+store_city_City A: -0.001028
+season_Winter: -0.001035
+promotion_time_period: -0.001046
+product_material_Metal: -0.001066
+transaction_hour: -0.001081
+payment_method_Credit Card: -0.001083
+purchase_frequency_Yearly: -0.001100
+product_material_Plastic: -0.001148
+preferred_store_Location C: -0.001181
+month_of_year: -0.001189
+customer_city_City B: -0.001246
+discount_applied: -0.001325
+education_level_High School: -0.001342
+total_discounts_received: -0.001351
+number_of_children: -0.001362
+min_single_purchase_value: -0.001418
+holiday_season_No: -0.001477
+email_subscriptions_No: -0.001504
+gender_Other: -0.001529
+customer_city_City D: -0.001535
+loyalty_program_Yes: -0.001652
+day_of_week_Saturday: -0.001736
+membership_years: -0.001789
+promotion_effectiveness_High: -0.001893
+product_return_rate: -0.002060
+day_of_week_Sunday: -0.002096
+payment_method_Debit Card: -0.002119
+online_purchases: -0.002129
+store_state_State Z: -0.002281
+distance_to_store: -0.002428
+product_rating: -0.002480
+avg_discount_used: -0.002486
+customer_state_State Z: -0.002529
+total_transactions: -0.002650
+customer_support_calls: -0.002653
