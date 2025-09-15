@@ -15,7 +15,7 @@ EPOCHS = 4000
 PATIENCE = 300
 LR_CANDIDATES = [3e-4, 1e-3, 3e-3, 1e-2]
 WEIGHT_DECAY = 0.0
-POLY_DEGREE = 2  # polynomial degree (2 = quadratic)
+POLY_DEGREE = 2  # polynomial degree 
 MAX_FEATURES_FOR_EXPANSION = 150  # safety cap to avoid explosion
 TOP_BASE_FEATURES_FOR_POLY = 80   # select top features by |corr| for poly expansion
 

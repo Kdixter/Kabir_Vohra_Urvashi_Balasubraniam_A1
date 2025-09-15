@@ -41,7 +41,7 @@ def impute_numeric_median(df: pd.DataFrame) -> pd.DataFrame:
 	return df
 
 
-# --- Feature engineering helpers ---
+# Feature engineering :
 
 def parse_screen_resolution(df: pd.DataFrame) -> pd.DataFrame:
 	text_parts: List[str] = []
@@ -150,7 +150,7 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 	# Weight parsing
 	df = parse_weight(df)
 
-	# One-hot encodings
+	# One-hot encodings stufff:
 	categoricals = {
 		"Company": df.get("Company"),
 		"TypeName": df.get("TypeName"),
@@ -166,11 +166,11 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 			dummies = pd.get_dummies(series.astype(str), prefix=name)
 			df = pd.concat([df, dummies], axis=1)
 
-	# Numeric keepers
+
 	numeric_keep = [
 		"Inches", "x_res", "y_res", "cpu_ghz", "ram_tb", "ssd_tb", "weight_kg"
 	]
-	# Drop original raw categorical columns that have been encoded
+	# Drop original raw categorical columns
 	drop_cols = [
 		"ScreenResolution", "ScreenText", "Cpu", "cpu_text", "Ram", "Memory", "MemoryText",
 		"Gpu", "OpSys", "Weight", "weight_extra", "Company", "TypeName"
@@ -179,14 +179,14 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
 		if c in df.columns:
 			df = df.drop(columns=[c])
 
-	# Ensure numeric types are numeric
+	# sanity after check by me: 
 	for col in numeric_keep:
 		if col in df.columns:
 			df[col] = pd.to_numeric(df[col], errors="coerce")
 
 	return df
 
-
+# nornalisation with min and max formula
 def normalize_features_to_unit_range(df: pd.DataFrame) -> pd.DataFrame:
 	for col in df.columns:
 		if col == TARGET_COL:
@@ -209,7 +209,7 @@ def load_target_correlations(results_dir: Path) -> pd.DataFrame:
 		corr_df = pd.read_csv(corr_path)
 		if set(corr_df.columns) >= {"feature", "pearson_corr_with_target"}:
 			return corr_df
-	# fallback: compute from numeric subset
+	
 	print("feature_price_correlations.csv not found or invalid; recomputing from numeric subset.")
 	_, data_dir, _ = get_paths()
 	raw = load_raw_dataset(data_dir)
@@ -225,7 +225,7 @@ def load_target_correlations(results_dir: Path) -> pd.DataFrame:
 	corr_df.columns = ["feature", "pearson_corr_with_target"]
 	return corr_df
 
-
+# self explanatory
 def drop_low_correlation_features(df: pd.DataFrame, corr_df: pd.DataFrame, threshold: float) -> pd.DataFrame:
 	to_drop: List[str] = []
 	for _, row in corr_df.iterrows():
@@ -255,7 +255,7 @@ def create_interaction_features(df: pd.DataFrame, corr_df: pd.DataFrame, top_k: 
 	print(f"Created {created} interaction features from top {len(top_feats)} features")
 	return df
 
-
+# split test and training (7.5% for test and rest for train):
 def split_and_save(df: pd.DataFrame, data_dir: Path) -> Tuple[Path, Path]:
 	df_shuffled = df.sample(frac=1.0, random_state=RANDOM_STATE).reset_index(drop=True)
 	n = len(df_shuffled)

@@ -10,11 +10,11 @@ TARGET_COL = "Life expectancy "
 STATUS_COL = "Status"
 COUNTRY_COL = "Country"
 
-# Configurables
+# hyper paramaters for data enginerring: 
 LOW_CORR_THRESHOLD = 0.05  # drop features with |corr| below this
-TOP_K_FOR_INTERACTIONS = 6  # create pairwise products among these top features
-RANDOM_STATE = 42
-TEST_SIZE = 0.075  # 7.5%
+TOP_K_FOR_INTERACTIONS = 6  # create pairwise products among these many top features (expiremented with 4,5,6,7,9)
+RANDOM_STATE = 42 # for randomness
+TEST_SIZE = 0.075  
 
 
 def get_paths() -> Tuple[Path, Path, Path]:
@@ -60,7 +60,7 @@ def one_hot_encode_country(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def normalize_features_to_unit_range(df: pd.DataFrame) -> pd.DataFrame:
-	"""Normalize numeric features to [-1, 1], excluding target column."""
+	
 	for col in df.columns:
 		if col == TARGET_COL:
 			continue
@@ -103,8 +103,7 @@ def load_target_correlations(results_dir: Path) -> pd.DataFrame:
 
 
 def drop_low_correlation_features(df: pd.DataFrame, corr_df: pd.DataFrame, threshold: float) -> pd.DataFrame:
-	"""Drop features whose absolute correlation with target is below threshold.
-	Only applies to columns present in corr_df (original numeric features)."""
+	
 	to_drop: List[str] = []
 	for _, row in corr_df.iterrows():
 		feat = row["feature"]
@@ -120,8 +119,7 @@ def drop_low_correlation_features(df: pd.DataFrame, corr_df: pd.DataFrame, thres
 
 
 def create_interaction_features(df: pd.DataFrame, corr_df: pd.DataFrame, top_k: int) -> pd.DataFrame:
-	"""Create pairwise product interaction features among top_k correlated predictors.
-	Works only with features present in df after previous steps."""
+	
 	# order by absolute correlation excluding target
 	corr_df_filtered = corr_df[corr_df["feature"] != TARGET_COL].copy()
 	corr_df_filtered["abs_corr"] = corr_df_filtered["pearson_corr_with_target"].abs()
@@ -138,7 +136,6 @@ def create_interaction_features(df: pd.DataFrame, corr_df: pd.DataFrame, top_k: 
 
 
 def split_and_save(df: pd.DataFrame, data_dir: Path, test_size: float, random_state: int) -> Tuple[Path, Path]:
-	# Shuffle
 	df_shuffled = df.sample(frac=1.0, random_state=random_state).reset_index(drop=True)
 	n_total = len(df_shuffled)
 	n_test = int(round(n_total * test_size))
@@ -151,7 +148,7 @@ def split_and_save(df: pd.DataFrame, data_dir: Path, test_size: float, random_st
 	print(f"Saved train to {train_path} ({len(train_df)} rows) and test to {test_path} ({len(test_df)} rows)")
 	return train_path, test_path
 
-
+# implementingf all functions to my data: 
 def main() -> None:
 	_, data_dir, results_dir = get_paths()
 	print(f"Data directory: {data_dir}")
@@ -162,27 +159,26 @@ def main() -> None:
 	df = drop_missing_target(df)
 	df = encode_status(df)
 
-	# Impute before encoding country to avoid affecting dummies
 	df = impute_numeric_median(df)
 
-	# One-hot encode country
-	df = one_hot_encode_country(df)
+	
+	df = one_hot_encode_country(df) # One-hot encode country
 
-	# Drop features with low correlation using precomputed correlations
+	
 	corr_df = load_target_correlations(results_dir)
 	df = drop_low_correlation_features(df, corr_df, LOW_CORR_THRESHOLD)
 
-	# Create interactions from top correlated original features
+	
 	df = create_interaction_features(df, corr_df, TOP_K_FOR_INTERACTIONS)
 
-	# Normalize features to [-1, 1] (exclude target)
+	
 	df = normalize_features_to_unit_range(df)
 
-	# Final median imputation safeguard (in case interactions introduced NaNs)
-	df = impute_numeric_median(df)
+	
+	df = impute_numeric_median(df) # Final median imputation safeguard (in case interactions introduced NaNs)
 
-	# Split and save
-	split_and_save(df, data_dir, TEST_SIZE, RANDOM_STATE)
+	
+	split_and_save(df, data_dir, TEST_SIZE, RANDOM_STATE) # Split and save
 
 
 if __name__ == "__main__":
