@@ -1,0 +1,61 @@
+quantity
+unit_price
+discount_applied
+month_of_year
+avg_items_per_transaction
+avg_transaction_value
+total_transactions
+total_items_purchased
+avg_spent_per_category
+max_single_purchase_value
+min_single_purchase_value
+product_rating
+product_review_count
+gender_Male
+income_bracket_High
+income_bracket_Low
+income_bracket_Medium
+loyalty_program_No
+loyalty_program_Yes
+marital_status_Married
+marital_status_Single
+marital_status_Divorced
+education_level_Bachelor's
+education_level_High School
+education_level_Master's
+education_level_PhD
+occupation_Employed
+occupation_Retired
+occupation_Self-Employed
+occupation_Unemployed
+product_category_Clothing
+product_category_Electronics
+product_category_Furniture
+product_category_Groceries
+product_category_Toys
+payment_method_Cash
+payment_method_Credit Card
+payment_method_Debit Card
+payment_method_Mobile Payment
+purchase_frequency_Daily
+purchase_frequency_Monthly
+purchase_frequency_Weekly
+purchase_frequency_Yearly
+product_size_Large
+product_size_Medium
+product_size_Small
+product_brand_Brand X
+product_brand_Brand Y
+product_brand_Brand Z
+product_name_Product A
+product_name_Product B
+product_name_Product C
+product_name_Product D
+holiday_season_No
+holiday_season_Yes
+weekend_No
+weekend_Yes
+customer_city_City A
+customer_city_City B
+customer_city_City C
+customer_city_City D
