@@ -1,506 +1,189 @@
 import os
-import pandas as pd
+from pathlib import Path
+from typing import List, Tuple
+
 import numpy as np
-from typing import Tuple
-import random
+import pandas as pd
 
 
-def load_data(data_path: str) -> pd.DataFrame: # same as in previous task
-    
-    print(f"Loading data from: {data_path}")
-    df = pd.read_csv(data_path)
-    print(f"Original data shape: {df.shape}")
-    print(f"Columns: {list(df.columns)}")
-    return df
+TARGET_COL = "Life expectancy "
+STATUS_COL = "Status"
+COUNTRY_COL = "Country"
+
+# Configurables
+LOW_CORR_THRESHOLD = 0.05  # drop features with |corr| below this
+TOP_K_FOR_INTERACTIONS = 6  # create pairwise products among these top features
+RANDOM_STATE = 42
+TEST_SIZE = 0.075  # 7.5%
 
 
-# Drop entries where Life expectancy is missing.
-def clean_life_expectancy(df: pd.DataFrame) -> pd.DataFrame:
-
-    print("Cleaning Life expectancy column...") # to know this function has been called
-    initial_count = len(df)
-    
-    # Drop entries where Life expectancy is missing
-    df = df.dropna(subset=['Life expectancy '])
-    
-    final_count = len(df)
-    removed_count = initial_count - final_count
-    print(f"Removed {removed_count} entries with missing Life expectancy")
-    print(f"Remaining entries: {final_count}")
-    
-    return df
-
-# One-hot-encode "Country" feature (crucial)
-def encode_country_feature(df: pd.DataFrame) -> pd.DataFrame:
-
-    print("One-hot encoding Country feature...")
-    
-    # Get unique countries
-    unique_countries = df['Country'].unique()
-    print(f"Number of unique countries: {len(unique_countries)}")
-    
-    # One-hot encode Country
-    country_dummies = pd.get_dummies(df['Country'], prefix='Country')
-    
-    # Drop original Country column and add one-hot encoded columns
-    df = df.drop('Country', axis=1)
-    df = pd.concat([df, country_dummies], axis=1)
-    
-    print(f"Added {len(country_dummies.columns)} country features")
-    print(f"New data shape after country encoding: {df.shape}")
-    
-    return df
-
-# Encode Status feature: 0.5 for Developed, -0.5 for Developing.
-def encode_status_feature(df: pd.DataFrame) -> pd.DataFrame:
-   
-    print("Encoding Status feature...")
-    
-    # Map Status values
-    status_mapping = {'Developed': 0.5, 'Developing': -0.5}
-    df['Status'] = df['Status'].map(status_mapping)
-    
-    print(f"Status mapping: {status_mapping}")
-    print(f"Status value counts after encoding:")
-    print(df['Status'].value_counts())
-    
-    return df
-
-# Handle missing Adult Mortality values.
-     #If missing, take median of that country's prior Adult Mortality values,
-    # otherwise take median of entire column.
-def handle_adult_mortality(df: pd.DataFrame) -> pd.DataFrame:
-   
-    print("Handling Adult Mortality missing values...")
-    
-    missing_count = df['Adult Mortality'].isna().sum()
-    print(f"Missing Adult Mortality values: {missing_count}")
-    
-    if missing_count > 0:
-        # Sort by Country and Year for proper ordering
-        df_sorted = df.sort_values(['Country', 'Year']).copy()
-        
-        # For each missing value, try to get country-specific median first
-        for idx in df_sorted[df_sorted['Adult Mortality'].isna()].index:
-            country = df_sorted.loc[idx, 'Country']
-            year = df_sorted.loc[idx, 'Year']
-            
-            # Get prior years' Adult Mortality for this country
-            country_data = df_sorted[
-                (df_sorted['Country'] == country) & 
-                (df_sorted['Year'] < year) & 
-                (df_sorted['Adult Mortality'].notna())
-            ]
-            
-            if len(country_data) > 0:
-                # Use median of country's prior values
-                median_value = country_data['Adult Mortality'].median()
-                df_sorted.loc[idx, 'Adult Mortality'] = median_value
-                print(f"Filled missing Adult Mortality for {country} ({year}) with country median: {median_value}")
-            else:
-                # Use overall column median
-                overall_median = df['Adult Mortality'].median()
-                df_sorted.loc[idx, 'Adult Mortality'] = overall_median
-                print(f"Filled missing Adult Mortality for {country} ({year}) with overall median: {overall_median}")
-        
-        df = df_sorted.sort_index()  # Restore original order
-    
-    return df
-
-# Handle missing Alcohol values by taking median of entire column. 
-def handle_alcohol(df: pd.DataFrame) -> pd.DataFrame:
-    
-    print("Handling Alcohol missing values...")
-    
-    missing_count = df['Alcohol'].isna().sum()
-    print(f"Missing Alcohol values: {missing_count}")
-    
-    if missing_count > 0:
-        median_value = df['Alcohol'].median()
-        df['Alcohol'] = df['Alcohol'].fillna(median_value)
-        print(f"Filled {missing_count} missing Alcohol values with median: {median_value}")
-    
-    return df
-
-# Drop entire rows where BMI is missing as this is a crucial feature
-def handle_bmi(df: pd.DataFrame) -> pd.DataFrame:
-    
-    print("Handling BMI missing values...")
-    
-    initial_count = len(df)
-    df = df.dropna(subset=[' BMI '])
-    final_count = len(df)
-    removed_count = initial_count - final_count
-    
-    print(f"Removed {removed_count} rows with missing BMI")
-    print(f"Remaining entries: {final_count}")
-    
-    return df
-
-# Handle missing Polio values by taking median of entire column.
-def handle_polio(df: pd.DataFrame) -> pd.DataFrame:
-    
-    print("Handling Polio missing values...")
-    
-    missing_count = df['Polio'].isna().sum()
-    print(f"Missing Polio values: {missing_count}")
-    
-    if missing_count > 0:
-        median_value = df['Polio'].median()
-        df['Polio'] = df['Polio'].fillna(median_value)
-        print(f"Filled {missing_count} missing Polio values with median: {median_value}")
-    
-    return df
-
-#Handle missing Total expenditure values by taking mean of entire column.
-def handle_total_expenditure(df: pd.DataFrame) -> pd.DataFrame:
-    
-    print("Handling Total expenditure missing values...")
-    
-    missing_count = df['Total expenditure'].isna().sum()
-    print(f"Missing Total expenditure values: {missing_count}")
-    
-    if missing_count > 0:
-        mean_value = df['Total expenditure'].mean()
-        df['Total expenditure'] = df['Total expenditure'].fillna(mean_value)
-        print(f"Filled {missing_count} missing Total expenditure values with mean: {mean_value}")
-    
-    return df
-
-# Handle missing Diphtheria values by taking mean of entire column.
-def handle_diphtheria(df: pd.DataFrame) -> pd.DataFrame:
-    
-    print("Handling Diphtheria missing values...")
-    
-    missing_count = df['Diphtheria '].isna().sum()
-    print(f"Missing Diphtheria values: {missing_count}")
-    
-    if missing_count > 0:
-        mean_value = df['Diphtheria '].mean()
-        df['Diphtheria '] = df['Diphtheria '].fillna(mean_value)
-        print(f"Filled {missing_count} missing Diphtheria values with mean: {mean_value}")
-    
-    return df
-
-# Take previous year's GDP for that country, if not available take mean of entire column.
-def handle_gdp(df: pd.DataFrame) -> pd.DataFrame:
-    print("Handling GDP missing values...")
-    
-    missing_count = df['GDP'].isna().sum()
-    print(f"Missing GDP values: {missing_count}")
-    
-    if missing_count > 0:
-        # Sort by Country and Year for proper ordering
-        df_sorted = df.sort_values(['Country', 'Year']).copy()
-        
-        # For each missing value, try to get previous year's GDP for that country
-        for idx in df_sorted[df_sorted['GDP'].isna()].index:
-            country = df_sorted.loc[idx, 'Country']
-            year = df_sorted.loc[idx, 'Year']
-            
-            # Get previous year's GDP for this country
-            prev_year_data = df_sorted[
-                (df_sorted['Country'] == country) & 
-                (df_sorted['Year'] == year - 1) & 
-                (df_sorted['GDP'].notna())
-            ]
-            
-            if len(prev_year_data) > 0:
-                # Use previous year's GDP
-                prev_gdp = prev_year_data['GDP'].iloc[0]
-                df_sorted.loc[idx, 'GDP'] = prev_gdp
-                print(f"Filled missing GDP for {country} ({year}) with previous year: {prev_gdp}")
-            else:
-                # Use overall column mean
-                overall_mean = df['GDP'].mean()
-                df_sorted.loc[idx, 'GDP'] = overall_mean
-                print(f"Filled missing GDP for {country} ({year}) with overall mean: {overall_mean}")
-        
-        df = df_sorted.sort_index()  # Restore original order
-    
-    return df
+def get_paths() -> Tuple[Path, Path, Path]:
+	src_dir = Path(__file__).resolve().parent
+	project_dir = src_dir.parent
+	data_dir = project_dir / "data"
+	results_dir = project_dir / "results"
+	results_dir.mkdir(parents=True, exist_ok=True)
+	return project_dir, data_dir, results_dir
 
 
-def handle_thinness_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing values for thinness features by taking median of entire column.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with thinness features missing values filled
-    """
-    print("Handling thinness features missing values...")
-    
-    thinness_features = [' thinness  1-19 years', ' thinness 5-9 years']
-    
-    for feature in thinness_features:
-        missing_count = df[feature].isna().sum()
-        print(f"Missing {feature} values: {missing_count}")
-        
-        if missing_count > 0:
-            median_value = df[feature].median()
-            df[feature] = df[feature].fillna(median_value)
-            print(f"Filled {missing_count} missing {feature} values with median: {median_value}")
-    
-    return df
+def load_raw_dataset(data_dir: Path) -> pd.DataFrame:
+	csv_path = data_dir / "life_expectancy.csv"
+	if not csv_path.exists():
+		raise FileNotFoundError(f"Expected data at {csv_path}")
+	return pd.read_csv(csv_path)
 
 
-def handle_income_composition(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Drop entries where Income composition of resources is missing.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Income composition missing entries removed
-    """
-    print("Handling Income composition of resources missing values...")
-    
-    initial_count = len(df)
-    df = df.dropna(subset=['Income composition of resources'])
-    final_count = len(df)
-    removed_count = initial_count - final_count
-    
-    print(f"Removed {removed_count} entries with missing Income composition of resources")
-    print(f"Remaining entries: {final_count}")
-    
-    return df
+def drop_missing_target(df: pd.DataFrame) -> pd.DataFrame:
+	return df.dropna(subset=[TARGET_COL]).reset_index(drop=True)
 
 
-def handle_schooling(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle missing Schooling values by taking mean of entire column.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with Schooling missing values filled
-    """
-    print("Handling Schooling missing values...")
-    
-    missing_count = df['Schooling'].isna().sum()
-    print(f"Missing Schooling values: {missing_count}")
-    
-    if missing_count > 0:
-        mean_value = df['Schooling'].mean()
-        df['Schooling'] = df['Schooling'].fillna(mean_value)
-        print(f"Filled {missing_count} missing Schooling values with mean: {mean_value}")
-    
-    return df
+def encode_status(df: pd.DataFrame) -> pd.DataFrame:
+	if STATUS_COL in df.columns:
+		mapping = {"Developed": 0.5, "Developing": -0.25}
+		df[STATUS_COL] = df[STATUS_COL].map(mapping)
+	return df
 
 
-def drop_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Drop specified features: Hepatitis B, Measles, Population.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        DataFrame with specified features removed
-    """
-    print("Dropping specified features...")
-    
-    features_to_drop = ['Hepatitis B', 'Measles ', 'Population']
-    
-    for feature in features_to_drop:
-        if feature in df.columns:
-            df = df.drop(feature, axis=1)
-            print(f"Dropped feature: {feature}")
-        else:
-            print(f"Feature not found: {feature}")
-    
-    print(f"Data shape after dropping features: {df.shape}")
-    return df
+def impute_numeric_median(df: pd.DataFrame) -> pd.DataFrame:
+	for col in df.columns:
+		if pd.api.types.is_numeric_dtype(df[col]):
+			if df[col].isna().any():
+				df[col] = df[col].fillna(df[col].median())
+	return df
 
 
-def normalize_features(df: pd.DataFrame, target_column: str = 'Life expectancy ') -> pd.DataFrame:
-    """
-    Normalize all features (except target) to range [-1, 1].
-    
-    Args:
-        df: Input DataFrame
-        target_column: Name of the target column
-        
-    Returns:
-        DataFrame with normalized features
-    """
-    print("Normalizing features to [-1, 1] range...")
-    
-    # Get feature columns (exclude target)
-    feature_columns = [col for col in df.columns if col != target_column]
-    
-    print(f"Normalizing {len(feature_columns)} features")
-    
-    # Normalize each feature to [-1, 1] range
-    for column in feature_columns:
-        if df[column].dtype in ['int64', 'float64']:  # Only normalize numeric columns
-            min_val = df[column].min()
-            max_val = df[column].max()
-            
-            if max_val != min_val:  # Avoid division by zero
-                # Normalize to [0, 1] first, then scale to [-1, 1]
-                df[column] = 2 * (df[column] - min_val) / (max_val - min_val) - 1
-                print(f"Normalized {column}: [{min_val:.2f}, {max_val:.2f}] -> [-1, 1]")
-            else:
-                print(f"Skipped {column}: constant value")
-    
-    return df
+def one_hot_encode_country(df: pd.DataFrame) -> pd.DataFrame:
+	if COUNTRY_COL in df.columns:
+		dummies = pd.get_dummies(df[COUNTRY_COL], prefix=COUNTRY_COL)
+		df = pd.concat([df.drop(columns=[COUNTRY_COL]), dummies], axis=1)
+	return df
 
 
-def split_data(df: pd.DataFrame, test_size: float = 0.075, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Split data into train and test sets.
-    
-    Args:
-        df: Input DataFrame
-        test_size: Proportion of data for testing
-        random_state: Random seed for reproducibility
-        
-    Returns:
-        Tuple of (train_df, test_df)
-    """
-    print(f"Splitting data: {1-test_size:.1%} train, {test_size:.1%} test")
-    
-    # Set random seed
-    random.seed(random_state)
-    np.random.seed(random_state)
-    
-    # Shuffle the data
-    df_shuffled = df.sample(frac=1, random_state=random_state).reset_index(drop=True)
-    
-    # Calculate split index
-    n_samples = len(df_shuffled)
-    test_samples = int(n_samples * test_size)
-    
-    # Split the data
-    test_df = df_shuffled[:test_samples]
-    train_df = df_shuffled[test_samples:]
-    
-    print(f"Train set: {len(train_df)} samples")
-    print(f"Test set: {len(test_df)} samples")
-    
-    return train_df, test_df
+def normalize_features_to_unit_range(df: pd.DataFrame) -> pd.DataFrame:
+	"""Normalize numeric features to [-1, 1], excluding target column."""
+	for col in df.columns:
+		if col == TARGET_COL:
+			continue
+		# Cast boolean dtypes to integers to allow arithmetic
+		if pd.api.types.is_bool_dtype(df[col]):
+			df[col] = df[col].astype(int)
+		if pd.api.types.is_numeric_dtype(df[col]):
+			col_min = df[col].min()
+			col_max = df[col].max()
+			if pd.isna(col_min) or pd.isna(col_max):
+				continue
+			if col_max != col_min:
+				df[col] = 2 * (df[col] - col_min) / (col_max - col_min) - 1
+			# if constant, leave as is
+	return df
 
 
-def save_processed_data(train_df: pd.DataFrame, test_df: pd.DataFrame, output_dir: str) -> None:
-    """
-    Save processed train and test data to CSV files.
-    
-    Args:
-        train_df: Training DataFrame
-        test_df: Testing DataFrame
-        output_dir: Output directory path
-    """
-    print("Saving processed data...")
-    
-    # Create output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Define output paths
-    train_path = os.path.join(output_dir, 'life_expectancy_train_processed.csv')
-    test_path = os.path.join(output_dir, 'life_expectancy_test_processed.csv')
-    
-    # Save to CSV
-    train_df.to_csv(train_path, index=False)
-    test_df.to_csv(test_path, index=False)
-    
-    print(f"Training data saved to: {train_path}")
-    print(f"Test data saved to: {test_path}")
-    print(f"Training data shape: {train_df.shape}")
-    print(f"Test data shape: {test_df.shape}")
+def load_target_correlations(results_dir: Path) -> pd.DataFrame:
+	corr_path = results_dir / "feature_correlations.csv"
+	if corr_path.exists():
+		corr_df = pd.read_csv(corr_path)
+		# ensure columns
+		if set(corr_df.columns) >= {"feature", "pearson_corr_with_target"}:
+			return corr_df
+	# Fallback: compute from raw numeric
+	print("feature_correlations.csv not found or invalid; recomputing from raw data.")
+	_, data_dir, _ = get_paths()
+	raw = load_raw_dataset(data_dir)
+	numeric = raw.select_dtypes(include=[np.number]).copy()
+	if TARGET_COL not in numeric.columns and TARGET_COL in raw.columns:
+		numeric[TARGET_COL] = pd.to_numeric(raw[TARGET_COL], errors="coerce")
+	numeric = numeric.dropna(subset=[TARGET_COL])
+	for col in numeric.columns:
+		if numeric[col].isna().any():
+			numeric[col] = numeric[col].fillna(numeric[col].median())
+	series = numeric.corr(method="pearson")[TARGET_COL].sort_values(ascending=False)
+	corr_df = series.reset_index()
+	corr_df.columns = ["feature", "pearson_corr_with_target"]
+	return corr_df
 
 
-def main():
-    """Main function to perform all data preprocessing steps."""
-    
-    # Define paths
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(current_dir)
-    data_path = os.path.join(project_root, 'data', 'life_expectancy.csv')
-    output_dir = os.path.join(project_root, 'data')
-    
-    print("=" * 80)
-    print("LIFE EXPECTANCY DATA PREPROCESSING")
-    print("=" * 80)
-    
-    try:
-        # Load data
-        df = load_data(data_path)
-        
-        # Step 1: Clean Life expectancy
-        df = clean_life_expectancy(df)
-        
-        # Step 2: Encode Status feature (before dropping Country)
-        df = encode_status_feature(df)
-        
-        # Step 3: Handle missing values for Adult Mortality (needs Country column)
-        df = handle_adult_mortality(df)
-        
-        # Step 4: Handle missing values for GDP (needs Country column)
-        df = handle_gdp(df)
-        
-        # Step 5: One-hot encode Country (after all country-specific operations)
-        df = encode_country_feature(df)
-        
-        # Step 6: Handle missing values for Alcohol
-        df = handle_alcohol(df)
-        
-        # Step 7: Drop Hepatitis B and Measles features
-        df = drop_features(df)
-        
-        # Step 8: Handle BMI (drop rows with missing BMI)
-        df = handle_bmi(df)
-        
-        # Step 9: Handle missing values for Polio
-        df = handle_polio(df)
-        
-        # Step 10: Handle missing values for Total expenditure
-        df = handle_total_expenditure(df)
-        
-        # Step 11: Handle missing values for Diphtheria
-        df = handle_diphtheria(df)
-        
-        # Step 12: Drop Population feature (already done in drop_features)
-        
-        # Step 13: Handle thinness features
-        df = handle_thinness_features(df)
-        
-        # Step 14: Handle Income composition (drop rows with missing values)
-        df = handle_income_composition(df)
-        
-        # Step 15: Handle missing values for Schooling
-        df = handle_schooling(df)
-        
-        # Step 16: Normalize all features to [-1, 1] range
-        df = normalize_features(df)
-        
-        # Step 17: Split data into train/test (92.5%/7.5%)
-        train_df, test_df = split_data(df, test_size=0.075, random_state=42)
-        
-        # Step 18: Save processed data
-        save_processed_data(train_df, test_df, output_dir)
-        
-        print("\n" + "=" * 80)
-        print("DATA PREPROCESSING COMPLETED SUCCESSFULLY!")
-        print("=" * 80)
-        
-        # Print final summary
-        print(f"\nFinal Summary:")
-        print(f"Original data shape: {df.shape}")
-        print(f"Training data shape: {train_df.shape}")
-        print(f"Test data shape: {test_df.shape}")
-        print(f"Features (excluding target): {train_df.shape[1] - 1}")
-        print(f"Target column: Life expectancy ")
-        
-    except Exception as e:
-        print(f"Error during preprocessing: {str(e)}")
-        raise
+def drop_low_correlation_features(df: pd.DataFrame, corr_df: pd.DataFrame, threshold: float) -> pd.DataFrame:
+	"""Drop features whose absolute correlation with target is below threshold.
+	Only applies to columns present in corr_df (original numeric features)."""
+	to_drop: List[str] = []
+	for _, row in corr_df.iterrows():
+		feat = row["feature"]
+		if feat == TARGET_COL:
+			continue
+		corr_val = float(row["pearson_corr_with_target"])
+		if abs(corr_val) < threshold and feat in df.columns:
+			to_drop.append(feat)
+	if to_drop:
+		print(f"Dropping low-correlation features (|r|<{threshold}): {len(to_drop)}")
+		df = df.drop(columns=to_drop)
+	return df
+
+
+def create_interaction_features(df: pd.DataFrame, corr_df: pd.DataFrame, top_k: int) -> pd.DataFrame:
+	"""Create pairwise product interaction features among top_k correlated predictors.
+	Works only with features present in df after previous steps."""
+	# order by absolute correlation excluding target
+	corr_df_filtered = corr_df[corr_df["feature"] != TARGET_COL].copy()
+	corr_df_filtered["abs_corr"] = corr_df_filtered["pearson_corr_with_target"].abs()
+	top_feats = [f for f in corr_df_filtered.sort_values("abs_corr", ascending=False)["feature"].tolist() if f in df.columns][:top_k]
+	created = 0
+	for i, a in enumerate(top_feats):
+		for b in top_feats[i + 1:]:
+			new_name = f"{a}__x__{b}"
+			if a in df.columns and b in df.columns and pd.api.types.is_numeric_dtype(df[a]) and pd.api.types.is_numeric_dtype(df[b]):
+				df[new_name] = df[a] * df[b]
+				created += 1
+	print(f"Created {created} interaction features from top {len(top_feats)} features")
+	return df
+
+
+def split_and_save(df: pd.DataFrame, data_dir: Path, test_size: float, random_state: int) -> Tuple[Path, Path]:
+	# Shuffle
+	df_shuffled = df.sample(frac=1.0, random_state=random_state).reset_index(drop=True)
+	n_total = len(df_shuffled)
+	n_test = int(round(n_total * test_size))
+	test_df = df_shuffled.iloc[:n_test].reset_index(drop=True)
+	train_df = df_shuffled.iloc[n_test:].reset_index(drop=True)
+	train_path = data_dir / "life_expectancy_train_processed.csv"
+	test_path = data_dir / "life_expectancy_test_processed.csv"
+	train_df.to_csv(train_path, index=False)
+	test_df.to_csv(test_path, index=False)
+	print(f"Saved train to {train_path} ({len(train_df)} rows) and test to {test_path} ({len(test_df)} rows)")
+	return train_path, test_path
+
+
+def main() -> None:
+	_, data_dir, results_dir = get_paths()
+	print(f"Data directory: {data_dir}")
+	print(f"Results directory: {results_dir}")
+
+	# Load and basic cleaning
+	df = load_raw_dataset(data_dir)
+	df = drop_missing_target(df)
+	df = encode_status(df)
+
+	# Impute before encoding country to avoid affecting dummies
+	df = impute_numeric_median(df)
+
+	# One-hot encode country
+	df = one_hot_encode_country(df)
+
+	# Drop features with low correlation using precomputed correlations
+	corr_df = load_target_correlations(results_dir)
+	df = drop_low_correlation_features(df, corr_df, LOW_CORR_THRESHOLD)
+
+	# Create interactions from top correlated original features
+	df = create_interaction_features(df, corr_df, TOP_K_FOR_INTERACTIONS)
+
+	# Normalize features to [-1, 1] (exclude target)
+	df = normalize_features_to_unit_range(df)
+
+	# Final median imputation safeguard (in case interactions introduced NaNs)
+	df = impute_numeric_median(df)
+
+	# Split and save
+	split_and_save(df, data_dir, TEST_SIZE, RANDOM_STATE)
 
 
 if __name__ == "__main__":
-    main()
+	main()
