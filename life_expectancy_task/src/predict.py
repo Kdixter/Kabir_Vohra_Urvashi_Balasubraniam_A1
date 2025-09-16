@@ -20,7 +20,7 @@ from data_preprocessing import (
 )
 
 def parse_args():
-    """Parse command-line arguments."""
+    """command-line arguments."""
     parser = argparse.ArgumentParser(description="Evaluate a trained model.")
     parser.add_argument("--model_path", type=str, required=True, help="Path to the saved model file.")
     parser.add_argument("--data_path", type=str, required=True, help="Path to the data CSV file.")
@@ -29,7 +29,6 @@ def parse_args():
     return parser.parse_args()
 
 def build_poly_feature_map(base_features: List[str], degree: int) -> List[tuple]:
-    """Build a map of polynomial features."""
     index_map = list(range(len(base_features)))
     terms = []
     for d in range(1, degree + 1):
@@ -39,7 +38,7 @@ def build_poly_feature_map(base_features: List[str], degree: int) -> List[tuple]
     return terms
 
 def expand_polynomial_features(df: pd.DataFrame, base_features: List[str], degree: int) -> Tuple[np.ndarray, List[str]]:
-    """Expand a dataframe with polynomial features."""
+    
     terms = build_poly_feature_map(base_features, degree)
     X_base = df[base_features].to_numpy(dtype=float)
     N = X_base.shape[0]
@@ -55,7 +54,7 @@ def expand_polynomial_features(df: pd.DataFrame, base_features: List[str], degre
     return X_poly, term_names
 
 def df_to_design_matrix_poly(df: pd.DataFrame, base_features: List[str], degree: int, target_col: str) -> Tuple[np.ndarray, np.ndarray]:
-    """Convert a dataframe to a design matrix with polynomial features."""
+    
     X_poly, _ = expand_polynomial_features(df, base_features, degree)
     bias = np.ones((X_poly.shape[0], 1), dtype=float)
     Xb = np.concatenate([bias, X_poly], axis=1)
@@ -63,21 +62,21 @@ def df_to_design_matrix_poly(df: pd.DataFrame, base_features: List[str], degree:
     return Xb, y
 
 def mse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate Mean Squared Error."""
+    
     return float(np.mean((y_true - y_pred) ** 2))
 
 def rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate Root Mean Squared Error."""
+    
     return float(np.sqrt(mse(y_true, y_pred)))
 
 def r2_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Calculate R-squared score."""
+    
     ss_res = np.sum((y_true - y_pred) ** 2)
     ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
     return float(1.0 - ss_res / ss_tot) if ss_tot > 0 else 0.0
 
 def main():
-    """Main function to load model, predict, and evaluate."""
+    
     args = parse_args()
     
     _, _, results_dir = get_paths()
@@ -114,20 +113,20 @@ def main():
     # Make predictions
     y_pred = X @ weights
 
-    # Calculate metrics
+    
     metrics = {
         "Mean Squared Error (MSE)": mse(y_true, y_pred),
         "Root Mean Squared Error (RMSE)": rmse(y_true, y_pred),
         "R-squared (R²) Score": r2_score(y_true, y_pred),
     }
 
-    # Save metrics to a file
+   
     with open(args.metrics_output_path, "w", encoding="utf-8") as f:
         f.write("Regression Metrics:\n")
         for name, value in metrics.items():
             f.write(f"{name}: {value:.2f}\n")
 
-    # Save predictions to a CSV file
+    
     pd.DataFrame(y_pred).to_csv(args.predictions_output_path, header=False, index=False)
 
     print(f"Predictions saved to {args.predictions_output_path}")

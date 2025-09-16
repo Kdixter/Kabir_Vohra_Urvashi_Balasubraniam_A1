@@ -37,15 +37,15 @@ def prepare_numeric_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 	if TARGET_COL not in df.columns:
 		raise KeyError(f"Target column '{TARGET_COL}' not found. Columns: {list(df.columns)}")
 
-	# Keep numeric columns and ensure target is present
+	# Keep numeric columns 
 	numeric_df = df.select_dtypes(include=[np.number]).copy()
 	if TARGET_COL not in numeric_df.columns:
 		numeric_df[TARGET_COL] = pd.to_numeric(df[TARGET_COL], errors="coerce")
 
-	# Drop missing target rows
+	# Drop missing rows from target if NaN:
 	numeric_df = numeric_df.dropna(subset=[TARGET_COL]).reset_index(drop=True)
 
-	# Impute remaining NaNs with column medians
+	# Impute rest: (adjust)
 	for col in numeric_df.columns:
 		if numeric_df[col].isna().any():
 			numeric_df[col] = numeric_df[col].fillna(numeric_df[col].median())
@@ -62,6 +62,8 @@ def save_target_correlations(numeric_df: pd.DataFrame, results_dir: Path) -> pd.
 	print(f"Saved target correlations to {out_path}")
 	return corr_with_target
 
+
+# visualisation stuff:
 
 def plot_top_target_correlations(abs_sorted: pd.Series, results_dir: Path, top_n: int = 15) -> List[str]:
 	plot_series = abs_sorted.head(top_n)
@@ -182,14 +184,12 @@ def main() -> None:
 	corr_no_target = corr_with_target.drop(labels=[TARGET_COL])
 	abs_sorted = corr_no_target.reindex(corr_no_target.abs().sort_values(ascending=False).index)
 
-	# Visualizations and exports
+	
 	plot_top_target_correlations(abs_sorted, results_dir, top_n=15)
 	plot_scatter_regplots(numeric_df, list(abs_sorted.index[:6]), results_dir)
 	plot_top_heatmap(numeric_df, abs_sorted, results_dir, top_m=12)
 
-	# Inter-feature correlations
 	inter_feature_analysis(numeric_df, results_dir)
-	# Interaction candidates
 	suggest_interaction_candidates(abs_sorted, results_dir, top_k=8)
 
 
